@@ -18,7 +18,9 @@
 
 #ifdef __APPLE__
 #   define OSX
-#   define BSD
+#   ifndef BSD
+#       define BSD
+#   endif
 #endif
 
 #ifdef __FreeBSD__
@@ -52,6 +54,8 @@
 #       define PPC
 #   elif defined(__arm__)
 #       define ARM
+#   elif defined(_MIPS_ARCH)
+#       define MIPS
 #   endif
 #endif
 

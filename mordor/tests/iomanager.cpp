@@ -3,6 +3,8 @@
 #include <boost/bind.hpp>
 
 #include "mordor/iomanager.h"
+#include "mordor/sleep.h"
+#include "mordor/streams/pipe.h"
 #include "mordor/test/test.h"
 
 using namespace Mordor;
@@ -35,4 +37,41 @@ MORDOR_UNITTEST(IOManager, laterTimer)
     manager.dispatch();
     ++sequence;
     MORDOR_TEST_ASSERT_EQUAL(sequence, 2);
+}
+
+namespace {
+class TickleAccessibleIOManager : public IOManager
+{
+public:
+    void tickle() { IOManager::tickle(); }
+};
+}
+
+MORDOR_UNITTEST(IOManager, lotsOfTickles)
+{
+    TickleAccessibleIOManager ioManager;
+    // Need at least 64K iterations for Linux, but not more than 16K at once
+    // for OS X
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 16000; ++j)
+            ioManager.tickle();
+        // Let the tickles drain
+        sleep(ioManager, 250000ull);
+    }
+}
+
+static void writeOne(Stream::ptr stream)
+{
+    MORDOR_TEST_ASSERT_EQUAL(stream->write("t", 1u), 1u);
+}
+
+MORDOR_UNITTEST(IOManager, rapidClose)
+{
+    IOManager ioManager(2);
+    for (int i = 0; i < 10000; ++i) {
+        std::pair<Stream::ptr, Stream::ptr> pipes = anonymousPipe(&ioManager);
+        ioManager.schedule(boost::bind(&writeOne, pipes.second));
+        char buffer;
+        MORDOR_TEST_ASSERT_EQUAL(pipes.first->read(&buffer, 1u), 1u);
+    }
 }

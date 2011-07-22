@@ -35,6 +35,8 @@
 #   define UCONTEXT_FIBERS
 #elif defined(ARM)
 #   define UCONTEXT_FIBERS
+#elif defined(MIPS)
+#   define UCONTEXT_FIBERS
 #else
 #   error Platform not supported
 #endif
@@ -180,7 +182,7 @@ private:
 #elif defined(SETJMP_FIBERS)
     jmp_buf m_env;
 #endif
-#if defined(VALGRIND) && (defined(LINUX) || defined(OSX))
+#if (defined(LINUX) || defined(OSX))
     int m_valgrindStackId;
 #endif
     State m_state, m_yielderNextState;
