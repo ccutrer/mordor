@@ -982,15 +982,15 @@ ListParser::exec()
     include http_parser;
     
     action save_domain{
-      m_currentCookie.domain = unquote(mark, fpc - mark);
+      m_key.domain = unquote(mark, fpc - mark);
     }
     
     action save_path{
-      m_currentCookie.path = unquote(mark, fpc - mark);
+      m_key.path = unquote(mark, fpc - mark);
     }
     
     action save_name{
-      m_currentCookie.name = std::string(mark, fpc - mark);
+      m_key.name = std::string(mark, fpc - mark);
     }
     
     action save_value{
@@ -1006,7 +1006,7 @@ ListParser::exec()
     }
     
     action save_current_cookie{
-      m_cookieList->insert( std::make_pair<CookieKey, Cookie>(CookieKey(m_currentCookie.name, m_currentCookie.path, m_currentCookie.domain), m_currentCookie));
+      m_cookieList->insert( std::make_pair<CookieKey, Cookie>(m_key, m_currentCookie));
     }
 
     word = token | quoted_string;
@@ -1027,8 +1027,9 @@ ListParser::exec()
 }%%
 
 CookieRequestParser::CookieRequestParser(CookieList &cookieList)
-: m_cookieList(&cookieList),
-  m_currentCookie()
+:m_cookieList(&cookieList)
+,m_currentCookie()
+,m_key("" ,"" ,"")
 {
 }
 

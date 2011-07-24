@@ -120,15 +120,16 @@ public:
 protected:
     void exec();
     void clearCurrentCookie(){
-      //m_currentCookie.name.clear(); //name will always be set
       m_currentCookie.value.clear();
-      m_currentCookie.domain.clear();
-      m_currentCookie.path.clear();
+      //m_key.name.clear(); //name will always be set
+      m_key.domain.clear();
+      m_key.path.clear();
 
     }
 private:
     CookieList *m_cookieList;
     Cookie m_currentCookie;
+    CookieKey m_key;
 };
 
 }}
