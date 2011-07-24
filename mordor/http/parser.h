@@ -110,6 +110,20 @@ private:
     std::vector<std::string> *m_list;
 };
 
+class CookieRequestParser : public RagelParserWithStack
+{
+public:
+    CookieRequestParser(CookieList &cookieList);
+    void init();
+    bool final() const;
+    bool error() const;
+protected:
+    void exec();
+private:
+    CookieList *m_cookieList;
+    Cookie m_currentCookie;
+};
+
 }}
 
 #endif

@@ -399,6 +399,20 @@ struct StatusLine
     Version ver;
 };
 
+struct Cookie
+{
+  std::string name;
+  std::string value;
+  std::string comment;
+  std::string domain;
+  std::string path;
+  std::string version;
+  boost::posix_time::ptime maxAge;
+  bool secure;
+};
+
+typedef std::vector<Cookie> CookieList;
+
 struct GeneralHeaders
 {
     StringSet connection;

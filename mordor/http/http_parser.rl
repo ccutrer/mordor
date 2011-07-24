@@ -975,4 +975,97 @@ ListParser::exec()
 #endif
 }
 
+%%{
+    #cookie parser following rfc2109 allowing for backwards-compatibility (i.e. version does not need to be present)
+    
+    machine http_cookie_request_parser;
+    include http_parser;
+    
+    action save_domain{
+      m_currentCookie.domain = unquote(mark, fpc - mark);
+    }
+    
+    action save_path{
+      m_currentCookie.path = unquote(mark, fpc - mark);
+    }
+    
+    action save_name{
+      m_currentCookie.name = std::string(mark, fpc - mark);
+    }
+    
+    action save_value{
+      m_currentCookie.value = unquote(mark, fpc - mark);
+    }
+    
+    action save_version{
+      m_currentCookie.version = unquote(mark, fpc - mark);
+    }
+    
+    action clear_current_cookie{
+      //m_currentCookie.name.clear(); //name will always be set
+      m_currentCookie.value.clear();
+      m_currentCookie.domain.clear();
+      m_currentCookie.path.clear();
+    }
+    
+    action save_current_cookie{
+      m_cookieList->push_back(m_currentCookie);
+    }
+
+    word = token | quoted_string;
+    attr = token;
+    cvalue = word;
+    
+    domain = "$domain"i LWS* "=" LWS* cvalue >mark %save_domain;
+    path = "$path"i LWS* "=" LWS* cvalue >mark %save_path;
+    VALUE = cvalue >mark %save_value;
+    NAME = (attr - ("$domain"i | "$path"i)) >mark %save_name;
+    cookie_version = "$version"i LWS* cvalue >mark %save_domain;
+    cookie_value = NAME LWS* "=" LWS* VALUE (LWS* ";" path)? (LWS* ";" domain)?;
+    cookie = (cookie_version LWS* (";" | ",") LWS*)? cookie_value %save_current_cookie (LWS* (";" | ",") LWS* cookie_value >clear_current_cookie %save_current_cookie )*;
+
+    main := cookie;
+
+    write data;
+}%%
+
+CookieRequestParser::CookieRequestParser(CookieList &cookieList)
+: m_cookieList(&cookieList),
+  m_currentCookie()
+{
+}
+
+void
+CookieRequestParser::init()
+{
+    RagelParser::init();
+    m_currentCookie.version="0";
+    %% write init;
+}
+
+bool
+CookieRequestParser::final() const
+{
+    return cs >= http_cookie_request_parser_first_final;
+}
+
+bool
+CookieRequestParser::error() const
+{
+    return cs == http_cookie_request_parser_error;
+}
+
+void
+CookieRequestParser::exec()
+{
+#ifdef MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244)
+#endif
+    %% write exec;
+#ifdef MSVC
+#pragma warning(pop)
+#endif
+}
+
 }}
