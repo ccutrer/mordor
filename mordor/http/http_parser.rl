@@ -1002,10 +1002,7 @@ ListParser::exec()
     }
     
     action clear_current_cookie{
-      //m_currentCookie.name.clear(); //name will always be set
-      m_currentCookie.value.clear();
-      m_currentCookie.domain.clear();
-      m_currentCookie.path.clear();
+      clearCurrentCookie();
     }
     
     action save_current_cookie{
@@ -1040,6 +1037,7 @@ CookieRequestParser::init()
 {
     RagelParser::init();
     m_currentCookie.version="0";
+    clearCurrentCookie();
     %% write init;
 }
 

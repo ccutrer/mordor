@@ -119,6 +119,13 @@ public:
     bool error() const;
 protected:
     void exec();
+    void clearCurrentCookie(){
+      //m_currentCookie.name.clear(); //name will always be set
+      m_currentCookie.value.clear();
+      m_currentCookie.domain.clear();
+      m_currentCookie.path.clear();
+
+    }
 private:
     CookieList *m_cookieList;
     Cookie m_currentCookie;
