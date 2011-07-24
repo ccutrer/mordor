@@ -399,6 +399,28 @@ struct StatusLine
     Version ver;
 };
 
+struct CookieKey
+{
+  CookieKey(const std::string& nameKey, const std::string& domainKey="", const std::string& pathKey="")
+    :name(nameKey)
+    ,domain(domainKey)
+    ,path(pathKey)
+    {}
+    
+  std::string name;
+  std::string domain;
+  std::string path;
+  
+  bool operator <(const CookieKey& b) const
+  {
+    if (this->domain < b.domain) return true;
+    if (this->domain > b.domain) return false;
+    if (this->name < b.name) return true;
+    if (this->name > b.name) return false;
+    return this->path < b.path;
+  }
+};
+
 struct Cookie
 {
   std::string name;
@@ -411,7 +433,7 @@ struct Cookie
   bool secure;
 };
 
-typedef std::vector<Cookie> CookieList;
+typedef std::map<CookieKey, Cookie> CookieList;
 
 struct GeneralHeaders
 {

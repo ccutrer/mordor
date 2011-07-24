@@ -1006,7 +1006,7 @@ ListParser::exec()
     }
     
     action save_current_cookie{
-      m_cookieList->push_back(m_currentCookie);
+      m_cookieList->insert( std::make_pair<CookieKey, Cookie>(CookieKey(m_currentCookie.name, m_currentCookie.path, m_currentCookie.domain), m_currentCookie));
     }
 
     word = token | quoted_string;
