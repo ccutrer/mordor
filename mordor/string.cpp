@@ -704,6 +704,17 @@ bool isLowSurrogate(utf16char character)
     return character >= 0xdc00 && character <= 0xdfff;
 }
 
+int stringicmp(const std::string& s1, const std::string& s2){
+  int result;
+  result = strnicmp(s1.data(), s2.data(), std::min<int>(s1.size(), s2.size()));
+  if (!result){
+    if (s1.size() == s2.size()) return 0;
+    if (s1.size() < s2.size()) return -1;
+    return 1;
+  }
+  return result;
+}
+
 bool
 caseinsensitiveless::operator ()(const std::string &lhs, const std::string &rhs) const
 {

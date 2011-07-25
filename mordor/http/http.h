@@ -413,11 +413,13 @@ struct CookieKey
   
   bool operator <(const CookieKey& b) const
   {
-    if (this->domain < b.domain) return true;
-    if (this->domain > b.domain) return false;
-    if (this->name < b.name) return true;
-    if (this->name > b.name) return false;
-    return this->path < b.path;
+    int cmpRes = stringicmp(this->domain, b.domain);
+    if (cmpRes < 0) return true;
+    if (cmpRes > 0) return false;
+    cmpRes = stringicmp(this->name, b.name);
+    if (cmpRes < 0) return true;
+    if (cmpRes > 0) return false;
+    return this->path < b.path;  //path is case sensitive
   }
 };
 

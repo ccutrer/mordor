@@ -103,6 +103,8 @@ std::string toUtf8(utf16char highSurrogate, utf16char lowSurrogate);
 bool isHighSurrogate(utf16char character);
 bool isLowSurrogate(utf16char character);
 
+int stringicmp(const std::string& s1, const std::string& s2);
+
 struct caseinsensitiveless
 {
     bool operator()(const std::string& lhs, const std::string& rhs) const;

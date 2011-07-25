@@ -976,7 +976,7 @@ ListParser::exec()
 }
 
 %%{
-    #cookie parser following rfc2109 allowing for backwards-compatibility (i.e. version does not need to be present)
+    #cookie parser following rfc 2109 allowing for backwards-compatibility (i.e. $Version does not need to be present)
     
     machine http_cookie_request_parser;
     include http_parser;
@@ -990,6 +990,10 @@ ListParser::exec()
     }
     
     action save_name{
+      if (!m_key.name.empty()) {
+	m_cookieList->insert( std::make_pair<CookieKey, Cookie>(m_key, m_currentCookie));
+	clearCurrentCookie();
+      }
       m_key.name = std::string(mark, fpc - mark);
     }
     
@@ -999,10 +1003,6 @@ ListParser::exec()
     
     action save_version{
       m_currentCookie.version = unquote(mark, fpc - mark);
-    }
-    
-    action clear_current_cookie{
-      clearCurrentCookie();
     }
     
     action save_current_cookie{
@@ -1016,10 +1016,10 @@ ListParser::exec()
     domain = "$domain"i LWS* "=" LWS* cvalue >mark %save_domain;
     path = "$path"i LWS* "=" LWS* cvalue >mark %save_path;
     VALUE = cvalue >mark %save_value;
-    NAME = (attr - ("$domain"i | "$path"i)) >mark %save_name;
-    cookie_version = "$version"i LWS* cvalue >mark %save_domain;
-    cookie_value = NAME LWS* "=" LWS* VALUE (LWS* ";" path)? (LWS* ";" domain)?;
-    cookie = (cookie_version LWS* (";" | ",") LWS*)? cookie_value %save_current_cookie (LWS* (";" | ",") LWS* cookie_value >clear_current_cookie %save_current_cookie )*;
+    NAME = (attr - ("$domain"i | "$path"i | "$version"i )) >mark %save_name;
+    cookie_version = "$version"i LWS* "=" LWS* cvalue >mark %save_version;
+    cookie_value = NAME LWS* "=" LWS* VALUE (LWS* ";" LWS* path)? (LWS* ";" LWS* domain)?;
+    cookie = ((cookie_version LWS* (";" | ",") LWS*)? cookie_value (LWS* (";" | ",") LWS* cookie_value )*) %save_current_cookie;
 
     main := cookie;
 
