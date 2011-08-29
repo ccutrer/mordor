@@ -1137,8 +1137,10 @@ respondStream(ServerRequest::ptr request, Stream &response)
             }
         }
         if (request->request().requestLine.method != HEAD) {
-            transferStream(response, request->responseStream());
-            request->responseStream()->close();
+            if (size != 0u) {
+                transferStream(response, request->responseStream());
+                request->responseStream()->close();
+            }
         }
     }
     if (request->request().requestLine.method == HEAD)
