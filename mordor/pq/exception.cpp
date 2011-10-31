@@ -1,5 +1,7 @@
 // Copyright (c) 2010 - Mozy, Inc.
 
+#include "stdafx.h"
+
 #include "exception.h"
 
 #include "mordor/log.h"

@@ -1,5 +1,7 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include "stdafx.h"
+
 #include "connection.h"
 
 #include "mordor/assert.h"
