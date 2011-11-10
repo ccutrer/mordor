@@ -261,6 +261,64 @@ Connection::prepare(const std::string &command, const std::string &name)
     }
 }
 
+std::vector<Result>
+Connection::unpreparedExecute(std::string command)
+{
+    boost::shared_ptr<PGresult> result, next;
+	std::vector<Result> resultVector;
+#ifndef WINDOWS
+    SchedulerSwitcher switcher(m_scheduler);
+#endif
+#ifndef WINDOWS
+    if (m_scheduler) {
+        if (!PQsendQuery(m_conn.get(), command.c_str()))
+            throwException(m_conn.get());
+        flush(m_conn.get(), m_scheduler);
+        next.reset(nextResult(m_conn.get(), m_scheduler), &PQclear);
+        while (next) {
+            result = next;
+            next.reset(nextResult(m_conn.get(), m_scheduler), &PQclear);
+            if (next) {
+                ExecStatusType status = PQresultStatus(next.get());
+                MORDOR_LOG_VERBOSE(g_log) << m_conn.get() << "PQresultStatus(" <<
+                    next.get() << "): " << PQresStatus(status);
+                switch (status) {
+                    case PGRES_COMMAND_OK:
+						break;
+                    case PGRES_TUPLES_OK:
+						resultVector.push_back(Result(next));
+                        break;
+                    default:
+                        throwException(next.get());
+                        MORDOR_NOTREACHED();
+                }
+            }
+        }
+		return resultVector;
+    } else
+#endif
+    {
+        result.reset(PQexec(m_conn.get(), command.c_str()), &PQclear);
+		if (!result)
+			throwException(m_conn.get());
+		ExecStatusType status = PQresultStatus(result.get());
+		MORDOR_LOG_VERBOSE(g_log) << m_conn.get() << " PQexec(\"" << command
+			<< "\"), PQresultStatus(" << result.get()
+			<< "): " << PQresStatus(status);
+		switch (status) {
+			case PGRES_COMMAND_OK:
+				break;
+			case PGRES_TUPLES_OK:
+				resultVector.push_back(Result(result));
+			default:
+				throwException(result.get());
+				MORDOR_NOTREACHED();
+		}
+		return resultVector;
+	}
+}
+
+
 Connection::CopyInParams
 Connection::copyIn(const std::string &table)
 {

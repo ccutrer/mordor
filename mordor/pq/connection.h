@@ -42,6 +42,8 @@ public:
     /// statement on the server
     PreparedStatement find(const std::string &name);
 
+	std::vector<Result> unpreparedExecute(std::string command);
+
     Result execute(const std::string &command)
     { return prepare(command).execute(); }
     template <class T1>
