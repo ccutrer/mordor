@@ -7,7 +7,7 @@
 #include "mordor/log.h"
 
 #ifdef MSVC
-#pragma comment(lib, "zdll")
+//#pragma comment(lib, "zdll")
 #endif
 
 namespace Mordor {
