@@ -14,11 +14,17 @@ class PreparedStatement;
 
 class Result
 {
+	enum ResultFormat{
+		TEXT = 0,
+		BINARY = 1
+	};
+
     friend class Connection;
     friend class PreparedStatement;
 private:
-    Result(boost::shared_ptr<PGresult> result)
+    Result(boost::shared_ptr<PGresult> result, ResultFormat format= BINARY)
         : m_result(result)
+		, m_format(format)
     {}
 
 public:
@@ -72,6 +78,7 @@ public:
 
 private:
     boost::shared_ptr<PGresult> m_result;
+	ResultFormat m_format;
 };
 
 

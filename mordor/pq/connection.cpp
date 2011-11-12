@@ -286,7 +286,7 @@ Connection::unpreparedExecute(std::string command)
                     case PGRES_COMMAND_OK:
 						break;
                     case PGRES_TUPLES_OK:
-						resultVector.push_back(Result(next));
+						resultVector.push_back(Result(next, Result::TEXT));
                         break;
                     default:
                         throwException(next.get());
@@ -309,7 +309,8 @@ Connection::unpreparedExecute(std::string command)
 			case PGRES_COMMAND_OK:
 				break;
 			case PGRES_TUPLES_OK:
-				resultVector.push_back(Result(result));
+				resultVector.push_back(Result(result, Result::TEXT));
+				break;
 			default:
 				throwException(result.get());
 				MORDOR_NOTREACHED();
