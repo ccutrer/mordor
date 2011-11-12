@@ -291,10 +291,13 @@ void
 PreparedStatement::ensure(size_t param)
 {
     if (m_params.size() < param) {
+		size_t oldSize = m_params.size();
         m_paramValues.resize(param);
         m_params.resize(param);
         for (size_t i = 0; i < param; ++i)
-            m_params[i] = m_paramValues[i].c_str();
+			if (i < oldSize && m_params[i] != NULL){
+				m_params[i] = m_paramValues[i].c_str();
+			}
         m_paramLengths.resize(param);
         m_paramFormats.resize(param);
         if (m_name.empty())
