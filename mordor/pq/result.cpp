@@ -315,7 +315,7 @@ Result::get<std::pair<IPAddress::ptr, unsigned int> >(size_t row, size_t column)
 	} else {
 		std::string res(PQgetvalue(m_result.get(), (int)row, (int)column));
 		size_t netDeviderPos = res.find('/');
-		unsigned int net;
+		unsigned int net=0;
 		if (netDeviderPos != std::string::npos){
 			net = boost::lexical_cast<unsigned int>(res.substr(netDeviderPos+1));
 			res.resize(netDeviderPos);
