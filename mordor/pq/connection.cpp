@@ -276,25 +276,22 @@ Connection::unpreparedExecute(std::string command)
         flush(m_conn.get(), m_scheduler);
         next.reset(nextResult(m_conn.get(), m_scheduler), &PQclear);
         while (next) {
-            result = next;
-            next.reset(nextResult(m_conn.get(), m_scheduler), &PQclear);
-            if (next) {
-                ExecStatusType status = PQresultStatus(next.get());
-                MORDOR_LOG_VERBOSE(g_log) << m_conn.get() << "PQresultStatus(" <<
-                    next.get() << "): " << PQresStatus(status);
-                switch (status) {
-                    case PGRES_COMMAND_OK:
-						break;
-                    case PGRES_TUPLES_OK:
-						resultVector.push_back(Result(next, Result::TEXT));
-                        break;
-                    default:
-                        throwException(next.get());
-                        MORDOR_NOTREACHED();
-                }
-            }
+	      ExecStatusType status = PQresultStatus(next.get());
+	      MORDOR_LOG_VERBOSE(g_log) << m_conn.get() << "PQresultStatus(" <<
+		  next.get() << "): " << PQresStatus(status);
+	      switch (status) {
+		  case PGRES_COMMAND_OK:
+		      break;
+		  case PGRES_TUPLES_OK:
+		      resultVector.push_back(Result(next, Result::TEXT));
+		      break;
+		  default:
+		      throwException(next.get());
+		      MORDOR_NOTREACHED();
+	      }
+              next.reset(nextResult(m_conn.get(), m_scheduler), &PQclear);
         }
-		return resultVector;
+        return resultVector;
     } else
 #endif
     {
