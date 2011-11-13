@@ -41,6 +41,7 @@ std::string sha256sum(const void *data, size_t len);
 #endif
 std::string hmacMd5(const std::string &text, const std::string &key);
 std::string hmacSha1(const std::string &text, const std::string &key);
+std::string hmacSha256(const std::string &text, const std::string &key);
 
 /// Output must be of size len * 2, and will *not* be null-terminated
 void hexstringFromData(const void *data, size_t len, char *output);

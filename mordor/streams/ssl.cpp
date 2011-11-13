@@ -236,7 +236,7 @@ SSLStream::close(CloseType type)
                 }
                 if (result == 0)
                     break;
-                MORDOR_NOTREACHED();
+                MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("SSL_shutdown");
             case SSL_ERROR_SSL:
                 {
                     MORDOR_ASSERT(hasOpenSSLError());
@@ -280,16 +280,11 @@ SSLStream::close(CloseType type)
                         << boost::errinfo_api_function("SSL_shutdown");
                 }
                 if (result == 0) {
-                    // Transport EOF without close notify
-                    MORDOR_LOG_WARNING(g_log) << this << " SSL_shutdown(" << m_ssl.get()
-                        << "): " << result << " (" << error << ")";
-                    break;
-                } else {
-                    // Received more SSL data after sending close notify
                     MORDOR_LOG_WARNING(g_log) << this << " SSL_shutdown(" << m_ssl.get()
                         << "): " << result << " (" << error << ")";
                     break;
                 }
+                MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("SSL_shutdown");
             case SSL_ERROR_SSL:
                 {
                     MORDOR_ASSERT(hasOpenSSLError());
@@ -347,7 +342,7 @@ SSLStream::read(void *buffer, size_t length)
                         << " (" << error << ")";
                     return 0;
                 }
-                MORDOR_NOTREACHED();
+                MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("SSL_read");
             case SSL_ERROR_SSL:
                 {
                     MORDOR_ASSERT(hasOpenSSLError());
@@ -420,7 +415,7 @@ SSLStream::write(const void *buffer, size_t length)
                         << " (" << error << ")";
                     MORDOR_THROW_EXCEPTION(UnexpectedEofException());
                 }
-                MORDOR_NOTREACHED();
+                MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("SSL_write");
             case SSL_ERROR_SSL:
                 {
                     MORDOR_ASSERT(hasOpenSSLError());
@@ -443,9 +438,8 @@ SSLStream::flush(bool flushParent)
     char *writeBuf;
     size_t toWrite = BIO_get_mem_data(m_writeBio, &writeBuf);
     m_writeBuffer.copyIn(writeBuf, toWrite);
-    if (BIO_reset(m_writeBio) != 1)
-      MORDOR_LOG_TRACE(g_log) << this << " BIO_reset failed ??";
-
+    int dummy = BIO_reset(m_writeBio);
+    dummy = 0;
     if (m_writeBuffer.readAvailable() == 0)
         return;
 
@@ -502,7 +496,7 @@ SSLStream::accept()
                         << ")";
                     MORDOR_THROW_EXCEPTION(UnexpectedEofException());
                 }
-                MORDOR_NOTREACHED();
+                MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("SSL_accept");
             case SSL_ERROR_SSL:
                 {
                     MORDOR_ASSERT(hasOpenSSLError());
@@ -558,7 +552,7 @@ SSLStream::connect()
                         << ")";
                     MORDOR_THROW_EXCEPTION(UnexpectedEofException());
                 }
-                MORDOR_NOTREACHED();
+                MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("SSL_connect");
             case SSL_ERROR_SSL:
                 {
                     MORDOR_ASSERT(hasOpenSSLError());
