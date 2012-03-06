@@ -212,7 +212,7 @@ IOManager::WaitBlock::removeEntry(int index)
     memmove(&m_recurring[index], &m_recurring[index + 1], (m_inUseCount - index) * sizeof(bool));
 }
 
-IOManager::IOManager(size_t threads, bool useCaller)
+IOManager::IOManager(size_t threads, bool useCaller, bool enableEventThread)
     : Scheduler(threads, useCaller)
 {
     m_pendingEventCount = 0;
@@ -224,6 +224,12 @@ IOManager::IOManager(size_t threads, bool useCaller)
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("CreateIoCompletionPort");
     try {
         start();
+        if (enableEventThread) {
+            MORDOR_LOG_VERBOSE(g_log) << this
+                << " Create dedicate event thread.";
+            m_eventThread.reset(new Thread(
+                boost::bind(&IOManager::eventLoop, this)));
+        }
     } catch (...) {
         CloseHandle(m_hCompletionPort);
         throw;
@@ -233,6 +239,11 @@ IOManager::IOManager(size_t threads, bool useCaller)
 IOManager::~IOManager()
 {
     stop();
+    if (m_eventThread) {
+        MORDOR_LOG_VERBOSE(g_log) << this << " terminating event thread.";
+        tickle();
+        m_eventThread->join();
+    }
     CloseHandle(m_hCompletionPort);
 }
 
@@ -386,6 +397,31 @@ IOManager::stopping(unsigned long long &nextTimeout)
 void
 IOManager::idle()
 {
+    if (m_eventThread) {
+        workerPoolIdle();
+    } else {
+        eventLoopIdle();
+    }
+}
+
+void
+IOManager::workerPoolIdle()
+{
+    while (true) {
+        if (stopping())
+            return;
+        m_semaphore.wait();
+        try {
+            Fiber::yield();
+        } catch (OperationAbortedException &) {
+            return;
+        }
+    }
+}
+
+void
+IOManager::eventLoopIdle()
+{
     OVERLAPPED_ENTRY events[64];
     ULONG count;
     while (true) {
@@ -479,12 +515,29 @@ IOManager::idle()
 void
 IOManager::tickle()
 {
+    if (m_eventThread)
+        m_semaphore.notify();
     BOOL bRet = PostQueuedCompletionStatus(m_hCompletionPort, 0, ~0, NULL);
     MORDOR_LOG_LEVEL(g_log, bRet ? Log::DEBUG : Log::ERROR) << this
         << " PostQueuedCompletionStatus(" << m_hCompletionPort
         << ", 0, ~0, NULL): " << bRet << " (" << lastError() << ")";
     if (!bRet)
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("PostQueuedCompletionStatus");
+}
+
+void
+IOManager::eventLoop()
+{
+    Fiber::ptr eventFiber(new Fiber(boost::bind(&IOManager::eventLoopIdle, this)));
+    while (true) {
+        eventFiber->call();
+        if (stopping()) {
+            eventFiber->inject(
+                boost::copy_exception(OperationAbortedException()));
+            MORDOR_LOG_VERBOSE(g_log) << this << " eventFiber terminated.";
+            break;
+        }
+    }
 }
 
 }

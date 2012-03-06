@@ -2,7 +2,10 @@
 #define __MORDOR_IOMANAGER_EPOLL_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <boost/scoped_ptr.hpp>
+
 #include "scheduler.h"
+#include "semaphore.h"
 #include "timer.h"
 #include "version.h"
 
@@ -50,7 +53,18 @@ private:
     };
 
 public:
-    IOManager(size_t threads = 1, bool useCaller = true);
+    /// @note in default behavior, every working thread will call idle()
+    /// when no more suitable fibers to be executed. However in a busy
+    /// system, all working threads are busy with execution. There could be
+    /// chances that idle() doesn't have a chance to get called for seconds,
+    /// in this situation, epoll events or expired timers will be delayed for
+    /// a while depends on the load of the system. If @enableEventThread set to
+    /// false, all threads will execute jobs or enter eventLoopIdle() to
+    /// handle I/O events. If @enableEventThread sets to true,  all the threads
+    /// created by Scheduler will do workerPoolIdle(), these threads are just
+    /// the same as workerpool threads, one additional thread is created and
+    /// dedicated to run eventLoopIdle() which isn't visible to Scheduler.
+    IOManager(size_t threads = 1, bool useCaller = true, bool enableEventThread = false);
     ~IOManager();
 
     bool stopping();
@@ -69,6 +83,9 @@ protected:
     void tickle();
 
     void onTimerInsertedAtFront() { tickle(); }
+    void workerPoolIdle();
+    void eventLoopIdle();
+    void eventLoop();
 
 private:
     int m_epfd;
@@ -76,6 +93,8 @@ private:
     size_t m_pendingEventCount;
     boost::mutex m_mutex;
     std::vector<AsyncState *> m_pendingEvents;
+    Semaphore m_semaphore;
+    boost::scoped_ptr<Thread> m_eventThread;
 };
 
 }

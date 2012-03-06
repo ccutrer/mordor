@@ -13,7 +13,7 @@ namespace Mordor {
 
 static Logger::ptr g_log = Log::lookup("mordor:iomanager");
 
-IOManager::IOManager(size_t threads, bool useCaller)
+IOManager::IOManager(size_t threads, bool useCaller, bool enableEventThread)
     : Scheduler(threads, useCaller)
 {
     m_kqfd = kqueue();
@@ -45,6 +45,12 @@ IOManager::IOManager(size_t threads, bool useCaller)
     }
     try {
         start();
+        if (enableEventThread) {
+            MORDOR_LOG_VERBOSE(g_log) << this
+                << " Create dedicate event thread.";
+            m_eventThread.reset(new Thread(
+                boost::bind(&IOManager::eventLoop, this)));
+        }
     } catch (...) {
         close(m_tickleFds[0]);
         close(m_tickleFds[1]);
@@ -56,6 +62,11 @@ IOManager::IOManager(size_t threads, bool useCaller)
 IOManager::~IOManager()
 {
     stop();
+    if (m_eventThread) {
+        MORDOR_LOG_VERBOSE(g_log) << this << " terminating event thread.";
+        tickle();
+        m_eventThread->join();
+    }
     close(m_kqfd);
     MORDOR_LOG_TRACE(g_log) << this << " close(" << m_kqfd << ")";
     close(m_tickleFds[0]);
@@ -233,6 +244,31 @@ IOManager::stopping(unsigned long long &nextTimeout)
 void
 IOManager::idle()
 {
+    if (m_eventThread) {
+        workerPoolIdle();
+    } else {
+        eventLoopIdle();
+    }
+}
+
+void
+IOManager::workerPoolIdle()
+{
+    while (true) {
+        if (stopping())
+            return;
+        m_semaphore.wait();
+        try {
+            Fiber::yield();
+        } catch (OperationAbortedException &) {
+            return;
+        }
+    }
+}
+
+void
+IOManager::eventLoopIdle()
+{
     struct kevent events[64];
     while (true) {
         unsigned long long nextTimeout;
@@ -331,10 +367,27 @@ IOManager::idle()
 void
 IOManager::tickle()
 {
+    if (m_eventThread)
+        m_semaphore.notify();
     int rc = write(m_tickleFds[1], "T", 1);
     MORDOR_LOG_VERBOSE(g_log) << this << " write(" << m_tickleFds[1] << ", 1): "
         << rc << " (" << lastError() << ")";
     MORDOR_VERIFY(rc == 1);
+}
+
+void
+IOManager::eventLoop()
+{
+    Fiber::ptr eventFiber(new Fiber(boost::bind(&IOManager::eventLoopIdle, this)));
+    while (true) {
+        eventFiber->call();
+        if (stopping()) {
+            eventFiber->inject(
+                boost::copy_exception(OperationAbortedException()));
+            MORDOR_LOG_VERBOSE(g_log) << this << " eventFiber terminated.";
+            break;
+        }
+    }
 }
 
 }

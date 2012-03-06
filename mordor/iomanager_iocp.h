@@ -4,10 +4,12 @@
 #include <map>
 
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "scheduler.h"
+#include "semaphore.h"
 #include "timer.h"
 #include "version.h"
 
@@ -63,7 +65,7 @@ private:
     };
 
 public:
-    IOManager(size_t threads = 1, bool useCaller = true);
+    IOManager(size_t threads = 1, bool useCaller = true, bool enableEventThread = false);
     ~IOManager();
 
     bool stopping();
@@ -85,6 +87,9 @@ protected:
     void tickle();
 
     void onTimerInsertedAtFront() { tickle(); }
+    void workerPoolIdle();
+    void eventLoopIdle();
+    void eventLoop();
 
 private:
     HANDLE m_hCompletionPort;
@@ -94,6 +99,8 @@ private:
     size_t m_pendingEventCount;
     boost::mutex m_mutex;
     std::list<WaitBlock::ptr> m_waitBlocks;
+    Semaphore m_semaphore;
+    boost::scoped_ptr<Thread> m_eventThread;
 };
 
 }

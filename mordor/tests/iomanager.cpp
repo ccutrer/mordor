@@ -78,3 +78,49 @@ MORDOR_UNITTEST(IOManager, rapidClose)
     }
 }
 #endif
+
+static void
+onTimer(unsigned long long &expiredTime, unsigned long long start)
+{
+    expiredTime = Mordor::TimerManager::now() - start;
+    return;
+}
+
+static void
+busyExecuting(unsigned long long time)
+{ // execute at least `time' us and quit
+    unsigned long long enter = Mordor::TimerManager::now();
+    while (true) {
+        if (Mordor::TimerManager::now() > enter + time)
+            break;
+        Scheduler::yield();
+    }
+}
+
+MORDOR_UNITTEST(IOManager, busyWorkingTimerDelayed)
+{
+    IOManager manager(1, true, false);
+    manager.schedule(boost::bind(busyExecuting, 300000));
+    unsigned long long elapseBeforeExpire = 0;
+    Timer::ptr timer = manager.registerTimer(50000,
+        boost::bind(onTimer,
+                    boost::ref(elapseBeforeExpire),
+                    Mordor::TimerManager::now()));
+    manager.dispatch();
+    // timer will not executed until busyExecuting() done
+    MORDOR_TEST_ASSERT_GREATER_THAN(elapseBeforeExpire, 300000U);
+}
+
+MORDOR_UNITTEST(IOManager, busyWorkingNoTimerDelay)
+{
+    IOManager manager(1, true, true);
+    manager.schedule(boost::bind(busyExecuting, 300000));
+    unsigned long long elapseBeforeExpire = 0;
+    Timer::ptr timer = manager.registerTimer(50000,
+        boost::bind(onTimer,
+                    boost::ref(elapseBeforeExpire),
+                    Mordor::TimerManager::now()));
+    manager.dispatch();
+    // timer expired in an acceptable deviation
+    MORDOR_TEST_ASSERT_ABOUT_EQUAL(elapseBeforeExpire, 50000U, 50000);
+}

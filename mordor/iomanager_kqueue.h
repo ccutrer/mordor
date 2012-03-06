@@ -6,8 +6,10 @@
 #include <sys/event.h>
 
 #include <map>
+#include <boost/scoped_ptr.hpp>
 
 #include "scheduler.h"
+#include "semaphore.h"
 #include "timer.h"
 #include "version.h"
 
@@ -40,7 +42,7 @@ private:
     };
 
 public:
-    IOManager(size_t threads = 1, bool useCaller = true);
+    IOManager(size_t threads = 1, bool useCaller = true, bool enableEventThread = false);
     ~IOManager();
 
     bool stopping();
@@ -55,12 +57,17 @@ protected:
     void tickle();
 
     void onTimerInsertedAtFront() { tickle(); }
+    void workerPoolIdle();
+    void eventLoopIdle();
+    void eventLoop();
 
 private:
     int m_kqfd;
     int m_tickleFds[2];
     std::map<std::pair<int, Event>, AsyncEvent> m_pendingEvents;
     boost::mutex m_mutex;
+    Semaphore m_semaphore;
+    boost::scoped_ptr<Thread> m_eventThread;
 };
 
 }
