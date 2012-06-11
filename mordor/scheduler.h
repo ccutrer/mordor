@@ -200,6 +200,7 @@ private:
     bool m_stopping;
     bool m_autoStop;
     size_t m_batchSize;
+    bool m_idling;
 };
 
 /// Automatic Scheduler switcher

@@ -20,7 +20,8 @@ Scheduler::Scheduler(size_t threads, bool useCaller, size_t batchSize)
       m_idleThreadCount(0),
       m_stopping(true),
       m_autoStop(false),
-      m_batchSize(batchSize)
+      m_batchSize(batchSize),
+      m_idling(false)
 {
     MORDOR_ASSERT(threads >= 1);
     if (useCaller) {
@@ -201,7 +202,7 @@ Scheduler::scheduleNoLock(Fiber::ptr f, tid_t thread)
     MORDOR_ASSERT(thread == emptytid() || thread == m_rootThread ||
         contains(m_threads, thread));
     FiberAndThread ft = {f, NULL, thread };
-    bool tickleMe = m_fibers.empty();
+    bool tickleMe = m_fibers.empty() || m_idling;
     m_fibers.push_back(ft);
     return tickleMe;
 }
@@ -216,7 +217,7 @@ Scheduler::scheduleNoLock(boost::function<void ()> dg, tid_t thread)
     MORDOR_ASSERT(thread == emptytid() || thread == m_rootThread ||
         contains(m_threads, thread));
     FiberAndThread ft = {Fiber::ptr(), dg, thread };
-    bool tickleMe = m_fibers.empty();
+    bool tickleMe = m_fibers.empty() || m_idling;
     m_fibers.push_back(ft);
     return tickleMe;
 }
@@ -457,10 +458,17 @@ Scheduler::run()
                 tickle();
             return;
         }
+
+        {
+            boost::mutex::scoped_lock lock(m_mutex);
+            if (!m_fibers.empty()) continue;
+            m_idling = true;
+        }
         MORDOR_LOG_DEBUG(g_log) << this << " idling";
         atomicIncrement(m_idleThreadCount);
         idleFiber->call();
         atomicDecrement(m_idleThreadCount);
+        m_idling = false;
     }
 }
 
