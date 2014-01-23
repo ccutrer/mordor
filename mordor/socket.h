@@ -319,11 +319,13 @@ private:
 struct UnixAddress : public Address
 {
 public:
+    UnixAddress();
     UnixAddress(const std::string &path);
 
     const sockaddr *name() const { return (sockaddr*)&sun; }
     sockaddr *name() { return (sockaddr*)&sun; }
     socklen_t nameLen() const { return length; }
+    void nameLen(socklen_t len) { length = len; }
 
     std::ostream & insert(std::ostream &os) const;
 

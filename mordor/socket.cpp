@@ -1204,6 +1204,11 @@ Socket::remoteAddress()
         case AF_INET6:
             result.reset(new IPv6Address());
             break;
+#ifndef WINDOWS
+        case AF_UNIX:
+            result.reset(new UnixAddress());
+            break;
+#endif
         default:
             result.reset(new UnknownAddress(m_family));
             break;
@@ -1211,6 +1216,10 @@ Socket::remoteAddress()
     socklen_t namelen = result->nameLen();
     if (getpeername(m_sock, result->name(), &namelen))
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("getpeername");
+#ifndef WINDOWS
+    if (m_family == AF_UNIX)
+        boost::static_pointer_cast<UnixAddress>(result)->nameLen(namelen);
+#endif
     MORDOR_ASSERT(namelen <= result->nameLen());
     return m_remoteAddress = result;
 }
@@ -1228,6 +1237,11 @@ Socket::localAddress()
         case AF_INET6:
             result.reset(new IPv6Address());
             break;
+#ifndef WINDOWS
+        case AF_UNIX:
+            result.reset(new UnixAddress());
+            break;
+#endif
         default:
             result.reset(new UnknownAddress(m_family));
             break;
@@ -1235,6 +1249,10 @@ Socket::localAddress()
     socklen_t namelen = result->nameLen();
     if (getsockname(m_sock, result->name(), &namelen))
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("getsockname");
+#ifndef WINDOWS
+    if (m_family == AF_UNIX)
+        boost::static_pointer_cast<UnixAddress>(result)->nameLen(namelen);
+#endif
     MORDOR_ASSERT(namelen <= result->nameLen());
     return m_localAddress = result;
 }
@@ -1869,6 +1887,13 @@ IPv6Address::insert(std::ostream &os) const
 }
 
 #ifndef WINDOWS
+UnixAddress::UnixAddress()
+{
+    memset(&sun, 0, sizeof(sockaddr_un));
+    sun.sun_family = AF_UNIX;
+    length = sizeof(sockaddr_un);
+}
+
 UnixAddress::UnixAddress(const std::string &path)
 {
     sun.sun_family = AF_UNIX;
