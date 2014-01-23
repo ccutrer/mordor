@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS=nostdinc subdir-objects
 AM_CPPFLAGS=$(OPENSSL_INCLUDES) $(BOOST_CPPFLAGS) $(POSTGRESQL_CFLAGS) $(VALGRIND_CPPFLAGS) -I$(srcdir) -I$(builddir)
-AM_CXXFLAGS=-Wall -Werror -fno-strict-aliasing
+AM_CXXFLAGS=-Wall -fno-strict-aliasing
 
 nobase_include_HEADERS=			\
 	mordor/anymap.h			\
@@ -192,7 +192,7 @@ mordor_libmordor_la_LDFLAGS=			\
 	$(SECURITY_FRAMEWORK_LIBS)		\
 	$(SYSTEMCONFIGURATION_FRAMEWORK_LIBS)	\
 	-version-info $(LIBMORDOR_SO_VERSION)
-mordor_libmordor_la_LIBADD=$(OPENSSL_LIBS) $(BOOST_REGEX_LIB) $(BOOST_THREAD_LIB)
+mordor_libmordor_la_LIBADD=$(OPENSSL_LIBS) $(BOOST_REGEX_LIB) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
 if HAVE_POSTGRESQL
     lib_LTLIBRARIES+=mordor/pq/libmordorpq.la
