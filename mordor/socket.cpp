@@ -1908,6 +1908,12 @@ UnixAddress::UnixAddress(const std::string &path)
     length += offsetof(sockaddr_un, sun_path);
 }
 
+std::string
+UnixAddress::path() const
+{
+    return std::string(sun.sun_path, length);
+}
+
 std::ostream &
 UnixAddress::insert(std::ostream &os) const
 {

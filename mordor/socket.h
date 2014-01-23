@@ -322,6 +322,8 @@ public:
     UnixAddress();
     UnixAddress(const std::string &path);
 
+    std::string path() const;
+
     const sockaddr *name() const { return (sockaddr*)&sun; }
     sockaddr *name() { return (sockaddr*)&sun; }
     socklen_t nameLen() const { return length; }
