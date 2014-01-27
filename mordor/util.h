@@ -102,6 +102,8 @@ using ::uint64_t;
 // compute with 96 bit intermediate result: (a*b)/c 
 uint64_t muldiv64(uint64_t a, uint32_t b, uint64_t c);
 
+const std::map<std::string, std::string> &env();
+
 }
 
 #endif

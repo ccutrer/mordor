@@ -56,4 +56,48 @@ uint64_t muldiv64(uint64_t a, uint32_t b, uint64_t c)
     return res.ll;
 }
 
+#ifdef OSX
+#include <crt_externs.h>
+#elif !defined(WINDOWS)
+extern char **environ;
+#endif
+
+static std::map<std::string, std::string> generateEnv()
+{
+    std::map<std::string, std::string> result;
+#ifdef WINDOWS
+    wchar_t *enviro = GetEnvironmentStringsW();
+    if (!enviro)
+        return result;
+    boost::shared_ptr<wchar_t> environScope(enviro, &FreeEnvironmentStringsW);
+    for (const wchar_t *env = enviro; *env; env += wcslen(env) + 1) {
+        const wchar_t *equals = wcschr(env, '=');
+        if (!equals)
+            equals = env + wcslen(env);
+        std::string key(toUtf8(env, equals - env));
+        std::string value(toUtf8(equals + 1));
+#else
+#ifdef OSX
+    char **environ = *_NSGetEnviron();
+#endif
+    if (!environ)
+        return result;
+    for (const char *env = *environ; *env; env += strlen(env) + 1) {
+        const char *equals = strchr(env, '=');
+        if (!equals)
+            equals = env + strlen(env);
+        std::string key(env, equals - env);
+        std::string value(equals + 1);
+#endif
+        result[key] = value;
+    }
+    return result;
+}
+
+const std::map<std::string, std::string> &env()
+{
+    static const std::map<std::string, std::string> env = generateEnv();
+    return env;
+}
+
 };

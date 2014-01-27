@@ -14,14 +14,6 @@
 
 #ifdef WINDOWS
 #include "iomanager.h"
-#else
-#ifndef OSX
-extern char **environ;
-#endif
-#endif
-
-#ifdef OSX
-#include <crt_externs.h>
 #endif
 
 namespace Mordor {
@@ -81,41 +73,21 @@ Config::loadFromCommandLine(int &argc, char *argv[])
 void
 Config::loadFromEnvironment()
 {
-#ifdef WINDOWS
-    wchar_t *enviro = GetEnvironmentStringsW();
-    if (!enviro)
-        return;
-    boost::shared_ptr<wchar_t> environScope(enviro, &FreeEnvironmentStringsW);
-    for (const wchar_t *env = enviro; *env; env += wcslen(env) + 1) {
-        const wchar_t *equals = wcschr(env, '=');
-        if (!equals)
+    for (std::map<std::string, std::string>::const_iterator it = env().begin();
+        it != env().end();
+        ++it) {
+        if (it->first.empty())
             continue;
-        if (equals == env)
+        if (it->second.empty())
             continue;
-        std::string key(toUtf8(env, equals - env));
-        std::string value(toUtf8(equals + 1));
-#else
-#ifdef OSX
-	char **environ = *_NSGetEnviron();
-#endif
-    if (!environ)
-        return;
-    for (const char *env = *environ; *env; env += strlen(env) + 1) {
-        const char *equals = strchr(env, '=');
-        if (!equals)
-            continue;
-        if (equals == env)
-            continue;
-        std::string key(env, equals - env);
-        std::string value(equals + 1);
-#endif
+        std::string key = it->first;
         std::transform(key.begin(), key.end(), key.begin(), tolower);
         replace(key, '_', '.');
         if (key.find_first_not_of("abcdefghijklmnopqrstuvwxyz.") != std::string::npos)
             continue;
         ConfigVarBase::ptr var = lookup(key);
         if (var)
-            var->fromString(value);
+            var->fromString(it->second);
     }
 }
 
