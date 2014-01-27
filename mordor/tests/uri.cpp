@@ -491,3 +491,21 @@ MORDOR_UNITTEST(URI, queryStringConvenience)
     MORDOR_TEST_ASSERT_EQUAL(qs.size(), 4u);
     MORDOR_TEST_ASSERT_EQUAL(qs.toString(), "a=3&a=4&a2=5&b");
 }
+
+MORDOR_UNITTEST(URI, userinfoWithColon)
+{
+    URI uri = "postgres://:password@:15432/";
+    MORDOR_TEST_ASSERT(uri.authority.userinfoDefined());
+    MORDOR_TEST_ASSERT_EQUAL(uri.authority.userinfo(), ":password");
+    MORDOR_TEST_ASSERT(uri.authority.hostDefined());
+    MORDOR_TEST_ASSERT(uri.authority.host().empty());
+    MORDOR_TEST_ASSERT(uri.authority.portDefined());
+    MORDOR_TEST_ASSERT_EQUAL(uri.authority.port(), 15432u);
+
+    uri = "postgres://:password@/";
+    MORDOR_TEST_ASSERT(uri.authority.userinfoDefined());
+    MORDOR_TEST_ASSERT_EQUAL(uri.authority.userinfo(), ":password");
+    MORDOR_TEST_ASSERT(uri.authority.hostDefined());
+    MORDOR_TEST_ASSERT(uri.authority.host().empty());
+    MORDOR_TEST_ASSERT(!uri.authority.portDefined());
+}

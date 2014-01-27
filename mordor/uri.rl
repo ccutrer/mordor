@@ -177,7 +177,8 @@ URI::decode(const std::string &str, CharacterClass charClass)
     {
         if (mark != NULL) {
             m_authority->host(unescape(std::string(mark, fpc - mark)));
-            mark = NULL;
+            // This could have been part of the userinfo, so don't clear the mark
+            // mark = NULL;
         }
     }
 
@@ -198,7 +199,7 @@ URI::decode(const std::string &str, CharacterClass charClass)
     IPvFuture = "v" xdigit+ "." (unreserved | sub_delims | ":")+;
     IP_literal = "[" (IPv6address | IPvFuture) "]";
     reg_name = (unreserved | pct_encoded | sub_delims)*;
-    host = IP_literal | IPv4address | reg_name;
+    host = reg_name;#IP_literal | IPv4address | reg_name;
     port = digit*;
 
     authority = ( (userinfo %save_userinfo "@")? host >markh %save_host (":" port >markh %save_port)? ) >markh;
