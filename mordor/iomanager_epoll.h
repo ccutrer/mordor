@@ -34,13 +34,13 @@ private:
         {
             EventContext() : scheduler(NULL) {}
             Scheduler *scheduler;
-            boost::shared_ptr<Fiber> fiber;
+            std::shared_ptr<Fiber> fiber;
             boost::function<void ()> dg;
         };
 
         EventContext &contextForEvent(Event event);
         bool triggerEvent(Event event, size_t *pendingEventCount = NULL,
-            boost::shared_ptr<Fiber> *fiber = NULL,
+            std::shared_ptr<Fiber> *fiber = NULL,
             boost::function<void ()> *dg = NULL);
 
         int m_fd;

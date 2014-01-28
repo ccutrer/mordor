@@ -2,7 +2,8 @@
 #define __MORDOR_SSH_CHANNEL_H__
 // Copyright (c) 2013 - Cody Cutrer
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
 #include <libssh2.h>
 
 #include "mordor/streams/stream.h"
@@ -15,7 +16,7 @@ class Session;
 class Channel : public Stream
 {
 public:
-    typedef boost::shared_ptr<Channel> ptr;
+    typedef std::shared_ptr<Channel> ptr;
 
 public: // internal
     Channel(Session *session, LIBSSH2_CHANNEL *channel);

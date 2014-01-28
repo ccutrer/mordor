@@ -190,7 +190,7 @@ IOManager::~IOManager()
     close(m_tickleFds[0]);
     MORDOR_LOG_VERBOSE(g_log) << this << " close(" << m_tickleFds[0] << ")";
     close(m_tickleFds[1]);
-    // Yes, it would be more C++-esque to store a boost::shared_ptr in the
+    // Yes, it would be more C++-esque to store a std::shared_ptr in the
     // vector, but that requires an extra allocation per fd for the counter
     for (size_t i = 0; i < m_pendingEvents.size(); ++i) {
         if (m_pendingEvents[i])

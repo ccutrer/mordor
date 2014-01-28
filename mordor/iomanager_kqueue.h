@@ -32,7 +32,7 @@ private:
         struct kevent event;
 
         Scheduler *m_scheduler, *m_schedulerClose;
-        boost::shared_ptr<Fiber> m_fiber, m_fiberClose;
+        std::shared_ptr<Fiber> m_fiber, m_fiberClose;
         boost::function<void ()> m_dg, m_dgClose;
 
         bool operator<(const AsyncEvent &rhs) const

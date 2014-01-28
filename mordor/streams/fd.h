@@ -12,7 +12,7 @@ class Scheduler;
 class FDStream : public Stream
 {
 public:
-    typedef boost::shared_ptr<FDStream> ptr;
+    typedef std::shared_ptr<FDStream> ptr;
 
 protected:
     FDStream();
