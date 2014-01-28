@@ -1,6 +1,12 @@
 #include "util.h"
 #include "endian.h"
 
+#ifdef OSX
+#include <crt_externs.h>
+#elif !defined(WINDOWS)
+extern char **environ;
+#endif
+
 namespace Mordor
 {
 
@@ -55,12 +61,6 @@ uint64_t muldiv64(uint64_t a, uint32_t b, uint64_t c)
     res.l.low = (uint32_t)((((rh % c) << 32) + (rl & 0xffffffff)) / c);
     return res.ll;
 }
-
-#ifdef OSX
-#include <crt_externs.h>
-#elif !defined(WINDOWS)
-extern char **environ;
-#endif
 
 static std::map<std::string, std::string> generateEnv()
 {
