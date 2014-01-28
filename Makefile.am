@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS=nostdinc subdir-objects
 AM_CPPFLAGS=$(OPENSSL_INCLUDES) $(BOOST_CPPFLAGS) $(POSTGRESQL_CFLAGS) $(VALGRIND_CPPFLAGS) -I$(srcdir) -I$(builddir)
-AM_CXXFLAGS=-Wall -fno-strict-aliasing -std=c++11
+AM_CXXFLAGS=-Wall -fno-strict-aliasing
 
 nobase_include_HEADERS=			\
 	mordor/anymap.h			\
