@@ -195,7 +195,7 @@ Socket::Socket(IOManager *ioManager, int family, int type, int protocol, int ini
     m_useAcceptEx = g_useAcceptEx->val();   //remember the setting for the entire life of the socket
     m_useConnectEx = g_useConnectEx->val(); //in case it is changed in the registry
     if (m_useAcceptEx && pAcceptEx && m_ioManager) {
-        m_sock = socket(family, type, protocol);
+        m_sock = ::socket(family, type, protocol);
         MORDOR_LOG_LEVEL(g_log, m_sock == -1 ? Log::ERROR : Log::DEBUG) << this
             << " socket(" << (Family)family << ", " << (Type)type << ", "
             << (Protocol)protocol << "): " << m_sock << " (" << lastError()
@@ -1393,7 +1393,7 @@ Address::lookup(const std::string &host, int family, int type, int protocol)
         node = host;
     int error;
 #ifdef WINDOWS
-    std::wstring serviceWStorage;
+    utf16string serviceWStorage;
     const wchar_t *serviceW = NULL;
     if (service) {
         if (stricmp(service, "socks") == 0)

@@ -1,5 +1,6 @@
 #include "util.h"
 #include "endian.h"
+#include "string.h"
 
 #ifdef OSX
 #include <crt_externs.h>
