@@ -1941,7 +1941,7 @@ bool
 operator <(const Address::ptr &lhs, const Address::ptr &rhs)
 {
     if (!lhs || !rhs)
-        return rhs;
+        return !!rhs;
     return *lhs < *rhs;
 }
 

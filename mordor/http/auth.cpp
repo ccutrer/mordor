@@ -204,8 +204,8 @@ bool getCredentialsFromKeychain(const URI &uri, ClientRequest::ptr priorRequest,
 
     std::vector<SecKeychainAttribute> attrVector;
     std::string host = uri.authority.host();
-    attrVector.push_back((SecKeychainAttribute){kSecServerItemAttr, host.size(),
-       (void *)host.c_str()});
+    attrVector.push_back((SecKeychainAttribute){kSecServerItemAttr,
+       (UInt32)host.size(), (void *)host.c_str()});
 
     UInt32 port = 0;
     if (uri.authority.portDefined()) {
