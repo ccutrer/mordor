@@ -391,7 +391,7 @@ MORDOR_UNITTEST(PipeStream, eventOnRemoteClose)
     std::pair<Stream::ptr, Stream::ptr> pipe = pipeStream();
 
     bool remoteClosed = false;
-    pipe.first->onRemoteClose(boost::bind(&closed, boost::ref(remoteClosed)));
+    pipe.first->onRemoteClose().connect(boost::bind(&closed, boost::ref(remoteClosed)));
     pipe.second->close();
     MORDOR_TEST_ASSERT(remoteClosed);
 }
@@ -401,7 +401,8 @@ MORDOR_UNITTEST(PipeStream, eventOnRemoteReset)
     std::pair<Stream::ptr, Stream::ptr> pipe = pipeStream();
 
     bool remoteClosed = false;
-    pipe.first->onRemoteClose(boost::bind(&closed, boost::ref(remoteClosed)));
+    boost::signals2::signal<void ()> m_onRemoteClose;
+    pipe.first->onRemoteClose().connect(boost::bind(&closed, boost::ref(remoteClosed)));
     pipe.second.reset();
     MORDOR_TEST_ASSERT(remoteClosed);
 }

@@ -1266,13 +1266,12 @@ Socket::type()
     return result;
 }
 
-boost::signals2::connection
-Socket::onRemoteClose(const boost::signals2::slot<void ()> &slot)
+boost::signals2::signal<void ()> &
+Socket::onRemoteClose()
 {
-    boost::signals2::connection result = m_onRemoteClose.connect(slot);
     if (m_isConnected && !m_isRegisteredForRemoteClose)
         registerForRemoteClose();
-    return result;
+    return m_onRemoteClose;
 }
 
 void

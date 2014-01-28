@@ -146,8 +146,7 @@ public:
     /// Only triggered for connected stream sockets.  This event is trigerred
     /// out-of-band of any receive operations (i.e. there may still be data on
     /// the socket to be read after this event has been received)
-    boost::signals2::connection onRemoteClose(
-        const boost::signals2::slot<void ()> &slot);
+	boost::signals2::signal<void ()> &onRemoteClose();
 
 private:
     template <bool isSend>

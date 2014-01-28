@@ -490,7 +490,7 @@ MORDOR_UNITTEST(Socket, eventOnRemoteShutdown)
     ioManager.dispatch();
     
     bool remoteClosed = false;
-    conns.accept->onRemoteClose(boost::bind(&closed, boost::ref(remoteClosed)));
+    conns.accept->onRemoteClose().connect(boost::bind(&closed, boost::ref(remoteClosed)));
     conns.connect->shutdown();
     ioManager.dispatch();
     MORDOR_TEST_ASSERT(remoteClosed);
@@ -505,7 +505,7 @@ MORDOR_UNITTEST(Socket, eventOnRemoteReset)
     ioManager.dispatch();
     
     bool remoteClosed = false;
-    conns.accept->onRemoteClose(boost::bind(&closed, boost::ref(remoteClosed)));
+    conns.accept->onRemoteClose().connect(boost::bind(&closed, boost::ref(remoteClosed)));
     conns.connect.reset();
     ioManager.dispatch();
     MORDOR_TEST_ASSERT(remoteClosed);

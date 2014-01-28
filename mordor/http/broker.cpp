@@ -379,7 +379,7 @@ ConnectionCache::getConnectionViaProxy(const URI &uri, const URI &proxy,
             new ClientConnection(stream, m_timerManager)), proxied);
         MORDOR_LOG_TRACE(g_cacheLog) << this << " connection " << result.first
             << " to " << endpoint << " established";
-        stream->onRemoteClose(boost::bind(&ConnectionCache::dropConnection,
+        stream->onRemoteClose().connect(boost::bind(&ConnectionCache::dropConnection,
             this, endpoint, result.first.get()));
         if (m_httpReadTimeout != ~0ull)
             result.first->readTimeout(m_httpReadTimeout);
