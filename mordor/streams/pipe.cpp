@@ -23,8 +23,8 @@ class PipeStream : public Stream
 {
     friend std::pair<Stream::ptr, Stream::ptr> pipeStream(size_t);
 public:
-    typedef boost::shared_ptr<PipeStream> ptr;
-    typedef boost::weak_ptr<PipeStream> weak_ptr;
+    typedef std::shared_ptr<PipeStream> ptr;
+    typedef std::weak_ptr<PipeStream> weak_ptr;
 
 public:
     PipeStream(size_t bufferSize);
@@ -48,13 +48,13 @@ public:
 
 private:
     PipeStream::weak_ptr m_otherStream;
-    boost::shared_ptr<boost::mutex> m_mutex;
+    std::shared_ptr<boost::mutex> m_mutex;
     Buffer m_readBuffer;
     size_t m_bufferSize;
     bool m_cancelledRead, m_cancelledWrite;
     CloseType m_closed, m_otherClosed;
     Scheduler *m_pendingWriterScheduler, *m_pendingReaderScheduler;
-    boost::shared_ptr<Fiber> m_pendingWriter, m_pendingReader;
+    std::shared_ptr<Fiber> m_pendingWriter, m_pendingReader;
     boost::signals2::signal<void ()> m_onRemoteClose;
 };
 

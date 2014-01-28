@@ -13,7 +13,7 @@ class Timer;
 class TimeoutStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<TimeoutStream> ptr;
+    typedef std::shared_ptr<TimeoutStream> ptr;
 
 public:
     TimeoutStream(Stream::ptr parent, TimerManager &timerManager, bool own = true)
@@ -41,7 +41,7 @@ private:
     TimerManager &m_timerManager;
     unsigned long long m_readTimeout, m_writeTimeout;
     bool m_readTimedOut, m_writeTimedOut, m_permaReadTimedOut, m_permaWriteTimedOut;
-    boost::shared_ptr<Timer> m_readTimer, m_writeTimer;
+    std::shared_ptr<Timer> m_readTimer, m_writeTimer;
     FiberMutex m_mutex;
 };
 

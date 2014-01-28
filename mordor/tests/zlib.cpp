@@ -107,7 +107,7 @@ void testCompress()
     origData.copyIn(test_uncompressed, sizeof(test_uncompressed));
 
     // compress from origData to compressed
-    boost::shared_ptr<MemoryStream> memstream(new MemoryStream());
+    std::shared_ptr<MemoryStream> memstream(new MemoryStream());
     Stream::ptr writeplex(new SingleplexStream(memstream, SingleplexStream::WRITE));
     StreamType teststream(writeplex);
     teststream.write(origData, origData.readAvailable());

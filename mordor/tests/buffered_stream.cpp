@@ -572,8 +572,8 @@ namespace
     void parallelReadWrite(Stream::ptr stream)
     {
         size_t totalSize = 16 * 1024 * 1024ull; // 16MB
-        boost::shared_ptr<Thread> writeThread(new Thread(boost::bind(doWrite, stream, totalSize)));
-        boost::shared_ptr<Thread> readThread(new Thread(boost::bind(doRead, stream, totalSize)));
+        std::shared_ptr<Thread> writeThread(new Thread(boost::bind(doWrite, stream, totalSize)));
+        std::shared_ptr<Thread> readThread(new Thread(boost::bind(doRead, stream, totalSize)));
         writeThread->join();
         readThread->join();
     }

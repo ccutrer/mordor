@@ -54,7 +54,7 @@ std::string to_string(const std::vector<void *> backtrace)
 #endif
     std::ostringstream os;
 #ifdef POSIX
-    boost::shared_ptr<char *> symbols(backtrace_symbols(&backtrace[0],
+    std::shared_ptr<char *> symbols(backtrace_symbols(&backtrace[0],
         backtrace.size()), &free);
 #endif
     for (size_t i = 0; i < backtrace.size(); ++i) {

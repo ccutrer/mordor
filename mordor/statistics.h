@@ -294,7 +294,7 @@ class Statistics
 {
 public:
     typedef std::map<std::string,
-        std::pair<std::string, boost::shared_ptr<Statistic> > >
+        std::pair<std::string, std::shared_ptr<Statistic> > >
         StatisticsCache;
 
     struct StatisticsDumper {};
@@ -321,7 +321,7 @@ public:
         const std::string &description = "")
     {
         MORDOR_ASSERT(statistics().find(name) == statistics().end());
-        boost::shared_ptr<T> ptr(new T(t));
+        std::shared_ptr<T> ptr(new T(t));
         stats()[name] = std::make_pair(description, ptr);
         return *ptr;
     }

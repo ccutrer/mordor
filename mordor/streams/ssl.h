@@ -48,10 +48,10 @@ private:
 class SSLStream : public MutatingFilterStream
 {
 public:
-    typedef boost::shared_ptr<SSLStream> ptr;
+    typedef std::shared_ptr<SSLStream> ptr;
 
 public:
-    static boost::shared_ptr<SSL_CTX> generateSelfSignedCertificate(
+    static std::shared_ptr<SSL_CTX> generateSelfSignedCertificate(
         const std::string &commonName = std::string());
 
 public:
@@ -78,8 +78,8 @@ private:
     void wantRead();
 
 private:
-    boost::shared_ptr<SSL_CTX> m_ctx;
-    boost::shared_ptr<SSL> m_ssl;
+    std::shared_ptr<SSL_CTX> m_ctx;
+    std::shared_ptr<SSL> m_ssl;
     Buffer m_readBuffer, m_writeBuffer;
     BIO *m_readBio, *m_writeBio;
 };

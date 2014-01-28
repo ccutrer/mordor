@@ -225,7 +225,7 @@ MORDOR_UNITTEST(PipeStream, closeOnBlockingWriter)
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 5);
 }
 
-static void destructOnBlockingReader(boost::weak_ptr<Stream> weakStream, int &sequence)
+static void destructOnBlockingReader(std::weak_ptr<Stream> weakStream, int &sequence)
 {
     Stream::ptr stream(weakStream);
     Fiber::yield();
@@ -242,7 +242,7 @@ MORDOR_UNITTEST(PipeStream, destructOnBlockingReader)
     int sequence = 1;
 
     Fiber::ptr f = Fiber::ptr(new Fiber(boost::bind(&destructOnBlockingReader,
-        boost::weak_ptr<Stream>(pipe.first), boost::ref(sequence))));
+        std::weak_ptr<Stream>(pipe.first), boost::ref(sequence))));
     f->call();
     pipe.first.reset();
     pool.schedule(f);
@@ -252,7 +252,7 @@ MORDOR_UNITTEST(PipeStream, destructOnBlockingReader)
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 4);
 }
 
-static void destructOnBlockingWriter(boost::weak_ptr<Stream> weakStream, int &sequence)
+static void destructOnBlockingWriter(std::weak_ptr<Stream> weakStream, int &sequence)
 {
     Stream::ptr stream(weakStream);
     Fiber::yield();
@@ -269,7 +269,7 @@ MORDOR_UNITTEST(PipeStream, destructOnBlockingWriter)
     int sequence = 1;
 
     Fiber::ptr f = Fiber::ptr(new Fiber(boost::bind(&destructOnBlockingWriter,
-        boost::weak_ptr<Stream>(pipe.first), boost::ref(sequence))));
+        std::weak_ptr<Stream>(pipe.first), boost::ref(sequence))));
     f->call();
     pipe.first.reset();
     pool.schedule(f);

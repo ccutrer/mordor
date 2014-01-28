@@ -2,10 +2,9 @@
 #define __MORDOR_URI_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <memory>
 #include <string>
 #include <vector>
-
-#include <boost/shared_ptr.hpp>
 
 #include "assert.h"
 #include "mordor/string.h"
@@ -207,14 +206,14 @@ struct URI
         QueryString() {}
         QueryString(const std::string &str) { *this = str; }
         QueryString(Stream &stream) { *this = stream; }
-        QueryString(boost::shared_ptr<Stream> stream) { *this = *stream; }
+        QueryString(std::shared_ptr<Stream> stream) { *this = *stream; }
 
         // Produce the URL encoded string representation suitable for use in the URI
         std::string toString() const;
 
         QueryString &operator =(const std::string &string);
         QueryString &operator =(Stream &stream);
-        QueryString &operator =(boost::shared_ptr<Stream> stream) { return *this = *stream; }
+        QueryString &operator =(std::shared_ptr<Stream> stream) { return *this = *stream; }
 
         /// Convenience function for working with a non-multi-valued key
         ///

@@ -11,7 +11,7 @@ namespace Mordor {
 class ProgressStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<ProgressStream> ptr;
+    typedef std::shared_ptr<ProgressStream> ptr;
     typedef boost::function<void (size_t)> progress_callback;
 
 private:

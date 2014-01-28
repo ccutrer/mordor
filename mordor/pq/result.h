@@ -2,7 +2,7 @@
 #define __MORDOR_PQ_RESULT_H__
 // Copyright (c) 2010 - Mozy, Inc.
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <libpq-fe.h>
 
@@ -17,7 +17,7 @@ class Result
     friend class Connection;
     friend class PreparedStatement;
 private:
-    Result(boost::shared_ptr<PGresult> result)
+    Result(std::shared_ptr<PGresult> result)
         : m_result(result)
     {}
 
@@ -71,7 +71,7 @@ public:
         { return get<T>(row, column(col)); }
 
 private:
-    boost::shared_ptr<PGresult> m_result;
+    std::shared_ptr<PGresult> m_result;
 };
 
 

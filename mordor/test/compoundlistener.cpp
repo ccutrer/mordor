@@ -8,7 +8,7 @@ using namespace Mordor;
 using namespace Mordor::Test;
 
 void
-CompoundListener::addListener(boost::shared_ptr<TestListener> listener)
+CompoundListener::addListener(std::shared_ptr<TestListener> listener)
 {
     m_listeners.push_back(listener);
 }
@@ -16,7 +16,7 @@ CompoundListener::addListener(boost::shared_ptr<TestListener> listener)
 void
 CompoundListener::testStarted(const std::string &suite, const std::string &test)
 {
-    for (std::vector<boost::shared_ptr<TestListener> >::const_iterator it =
+    for (std::vector<std::shared_ptr<TestListener> >::const_iterator it =
         m_listeners.begin();
         it != m_listeners.end();
         ++it)
@@ -26,7 +26,7 @@ CompoundListener::testStarted(const std::string &suite, const std::string &test)
 void
 CompoundListener::testComplete(const std::string &suite, const std::string &test)
 {
-    for (std::vector<boost::shared_ptr<TestListener> >::const_iterator it =
+    for (std::vector<std::shared_ptr<TestListener> >::const_iterator it =
         m_listeners.begin();
         it != m_listeners.end();
         ++it)
@@ -36,7 +36,7 @@ CompoundListener::testComplete(const std::string &suite, const std::string &test
 void
 CompoundListener::testSkipped(const std::string &suite, const std::string &test)
 {
-    for (std::vector<boost::shared_ptr<TestListener> >::const_iterator it =
+    for (std::vector<std::shared_ptr<TestListener> >::const_iterator it =
         m_listeners.begin();
         it != m_listeners.end();
         ++it)
@@ -47,7 +47,7 @@ void
 CompoundListener::testAsserted(const std::string &suite, const std::string &test,
                              const Assertion &assertion)
 {
-    for (std::vector<boost::shared_ptr<TestListener> >::const_iterator it =
+    for (std::vector<std::shared_ptr<TestListener> >::const_iterator it =
         m_listeners.begin();
         it != m_listeners.end();
         ++it)
@@ -57,7 +57,7 @@ CompoundListener::testAsserted(const std::string &suite, const std::string &test
 void
 CompoundListener::testException(const std::string &suite, const std::string &test)
 {
-    for (std::vector<boost::shared_ptr<TestListener> >::const_iterator it =
+    for (std::vector<std::shared_ptr<TestListener> >::const_iterator it =
         m_listeners.begin();
         it != m_listeners.end();
         ++it)
@@ -67,7 +67,7 @@ CompoundListener::testException(const std::string &suite, const std::string &tes
 void
 CompoundListener::testsComplete()
 {
-    for (std::vector<boost::shared_ptr<TestListener> >::const_iterator it =
+    for (std::vector<std::shared_ptr<TestListener> >::const_iterator it =
         m_listeners.begin();
         it != m_listeners.end();
         ++it)

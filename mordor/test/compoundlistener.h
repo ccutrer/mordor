@@ -1,7 +1,7 @@
 #ifndef __MORDOR_TEST_COMPOUND_LISTENER_H__
 #define __MORDOR_TEST_COMPOUND_LISTENER_H__
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <vector>
 
 #include "test.h"
@@ -12,7 +12,7 @@ namespace Test {
 class CompoundListener : public TestListener
 {
 public:
-    void addListener(boost::shared_ptr<TestListener> listener);
+    void addListener(std::shared_ptr<TestListener> listener);
 
     void testStarted(const std::string &suite,
         const std::string &test);
@@ -27,7 +27,7 @@ public:
     void testsComplete();
 
 private:
-    std::vector<boost::shared_ptr<TestListener> > m_listeners;
+    std::vector<std::shared_ptr<TestListener> > m_listeners;
 };
 
 }}

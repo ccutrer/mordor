@@ -43,7 +43,7 @@ MORDOR_MAIN(int argc, char **argv)
     ++argv;
     Config::loadFromEnvironment();
 
-    boost::shared_ptr<TestListener> listener;
+    std::shared_ptr<TestListener> listener;
     std::string xmlDirectory = g_xmlDirectory->val();
     if (!xmlDirectory.empty()) {
         if (xmlDirectory == ".")

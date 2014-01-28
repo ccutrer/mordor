@@ -17,7 +17,7 @@ namespace Mordor {
 class FileStream : public NativeStream
 {
 public:
-    typedef boost::shared_ptr<FileStream> ptr;
+    typedef std::shared_ptr<FileStream> ptr;
 
 #ifdef WINDOWS
     enum AccessFlags {

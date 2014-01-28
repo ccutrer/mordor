@@ -277,7 +277,7 @@ Config::RegistryMonitor::~RegistryMonitor()
 
 void
 Config::RegistryMonitor::onRegistryChange(
-    boost::weak_ptr<RegistryMonitor> self)
+    std::weak_ptr<RegistryMonitor> self)
 {
     try
     {
@@ -337,7 +337,7 @@ Config::monitorRegistry(IOManager &ioManager, HKEY hKey,
     // we need
     ioManager.registerEvent(result->m_hEvent,
         boost::bind(&RegistryMonitor::onRegistryChange,
-            boost::weak_ptr<RegistryMonitor>(result)), true);
+            std::weak_ptr<RegistryMonitor>(result)), true);
     Mordor::loadFromRegistry(result->m_hKey);
     return result;
 }
@@ -358,11 +358,11 @@ Timer::ptr associateTimerWithConfigVar(TimerManager &timerManager,
     ConfigVar<std::string>::ptr configVar, boost::function<void ()> dg)
 {
     unsigned long long initialValue = stringToMicroseconds(configVar->val());
-    Timer::ptr result = timerManager.registerTimer(initialValue, dg, true);
+    std::shared_ptr<Timer> result = timerManager.registerTimer(initialValue, dg, true);
     configVar->beforeChange.connect(&verifyString);
     configVar->onChange.connect(
         ConfigVar<std::string>::on_change_signal_type::slot_type(
-            &updateTimer, _1, result.get()).track(result));
+            &updateTimer, _1, result.get()).track_foreign(result));
     return result;
 }
 

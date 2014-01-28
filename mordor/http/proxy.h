@@ -81,14 +81,14 @@ private:
 class ProxyCache
 {
 public:
-    ProxyCache(boost::shared_ptr<RequestBroker> requestBroker);
+    ProxyCache(std::shared_ptr<RequestBroker> requestBroker);
     ~ProxyCache();
 
     std::vector<URI> proxyFromSystemConfiguration(const URI &uri);
 
 private:
     ScopedCFRef<SCDynamicStoreRef> m_dynamicStore;
-	boost::shared_ptr<RequestBroker> m_requestBroker;
+	std::shared_ptr<RequestBroker> m_requestBroker;
     std::map<URI, ScopedCFRef<CFStringRef> > m_cachedScripts;
 
     struct PacMessage {
@@ -122,8 +122,8 @@ private:
 ///       because that would break NTLM authentication, and ConnectionCache
 ///       hasn't been improved yet to do allowPipelining instead of
 ///       forceNewConnection
-boost::shared_ptr<Stream>
-tunnel(boost::shared_ptr<RequestBroker> requestBroker, const URI &proxy,
+std::shared_ptr<Stream>
+tunnel(std::shared_ptr<RequestBroker> requestBroker, const URI &proxy,
     const URI &target);
 
 }}

@@ -3,9 +3,9 @@
 #include "mordor/predef.h"
 
 #include <iostream>
+#include <memory>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
 #include "mordor/config.h"

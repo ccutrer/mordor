@@ -4,7 +4,7 @@
 
 #include "version.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #ifdef OSX
 #include <CoreFoundation/CFBase.h>
@@ -20,7 +20,7 @@ namespace Mordor {
 template <class T>
 void nop(const T &) {}
 
-/// Create a boost::shared_ptr to an object without the shared_ptr managing it.
+/// Create a std::shared_ptr to an object without the shared_ptr managing it.
 ///
 /// The object will not be deleted when the shared_ptr goes out of scope.  The
 /// lifetime of the object is not managed by the shared_ptr at all, so whatever
@@ -28,8 +28,8 @@ void nop(const T &) {}
 /// destroyed.  Typically you could use this to create a shared_ptr to a stack
 /// object.
 template <class T>
-boost::shared_ptr<T> unmanagedPtr(T &t)
-{ return boost::shared_ptr<T>(&t, &nop<T*>); }
+std::shared_ptr<T> unmanagedPtr(T &t)
+{ return std::shared_ptr<T>(&t, &nop<T*>); }
 
 #ifdef OSX
 template <class T>

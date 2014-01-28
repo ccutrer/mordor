@@ -10,7 +10,7 @@ namespace Mordor {
 class MemoryStream : public Stream
 {
 public:
-    typedef boost::shared_ptr<MemoryStream> ptr;
+    typedef std::shared_ptr<MemoryStream> ptr;
 public:
     MemoryStream();
     MemoryStream(const Buffer &b);

@@ -2,9 +2,8 @@
 #define __MORDOR_YAML_H__
 // Copyright (c) 2010 - Mozy, Inc.
 
+#include <memory>
 #include <string>
-
-#include <boost/shared_ptr.hpp>
 
 #include "exception.h"
 #include "json.h"
@@ -31,7 +30,7 @@ private:
 
 JSON::Value parse(const std::string &string);
 JSON::Value parse(Stream &stream);
-JSON::Value parse(boost::shared_ptr<Stream> stream);
+JSON::Value parse(std::shared_ptr<Stream> stream);
 
 }}
 

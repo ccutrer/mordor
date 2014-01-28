@@ -32,12 +32,12 @@ MORDOR_MAIN(int argc, char *argv[])
 
     CompoundListener listener;
     std::string xmlDirectory = g_xmlDirectory->val();
-    listener.addListener(boost::shared_ptr<TestListener>(
+    listener.addListener(std::shared_ptr<TestListener>(
         new StdoutListener()));
     if (!xmlDirectory.empty()) {
         if (xmlDirectory == ".")
             xmlDirectory.clear();
-        listener.addListener(boost::shared_ptr<TestListener>(
+        listener.addListener(std::shared_ptr<TestListener>(
             new AntXMLListener(xmlDirectory)));
     }
     bool result;

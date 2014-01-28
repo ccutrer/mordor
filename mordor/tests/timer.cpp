@@ -179,8 +179,8 @@ namespace {
 class TestTimerClass
 {
 public:
-    typedef boost::shared_ptr<TestTimerClass> ptr;
-    typedef boost::weak_ptr<TestTimerClass> weak_ptr;
+    typedef std::shared_ptr<TestTimerClass> ptr;
+    typedef std::weak_ptr<TestTimerClass> weak_ptr;
 
 public:
     TestTimerClass(int &i) : m_i(i) {}

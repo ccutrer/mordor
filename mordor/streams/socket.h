@@ -11,10 +11,10 @@ class Socket;
 class SocketStream : public Stream
 {
 public:
-    typedef boost::shared_ptr<SocketStream> ptr;
+    typedef std::shared_ptr<SocketStream> ptr;
 
 public:
-    SocketStream(boost::shared_ptr<Socket> socket, bool own = true);
+    SocketStream(std::shared_ptr<Socket> socket, bool own = true);
 
     bool supportsHalfClose() { return true; }
     bool supportsRead() { return true; }
@@ -33,10 +33,10 @@ public:
     boost::signals2::connection onRemoteClose(
         const boost::signals2::slot<void ()> &slot);
 
-    boost::shared_ptr<Socket> socket() { return m_socket; }
+    std::shared_ptr<Socket> socket() { return m_socket; }
 
 private:
-    boost::shared_ptr<Socket> m_socket;
+    std::shared_ptr<Socket> m_socket;
     bool m_own;
 };
 

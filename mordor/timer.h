@@ -2,13 +2,13 @@
 #define __MORDOR_TIMER_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <memory>
 #include <set>
 #include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -16,11 +16,11 @@ namespace Mordor {
 
 class TimerManager;
 
-class Timer : public boost::noncopyable, public boost::enable_shared_from_this<Timer>
+class Timer : public boost::noncopyable, public std::enable_shared_from_this<Timer>
 {
     friend class TimerManager;
 public:
-    typedef boost::shared_ptr<Timer> ptr;
+    typedef std::shared_ptr<Timer> ptr;
 
 private:
     Timer(unsigned long long us, boost::function<void ()> dg,
@@ -75,7 +75,7 @@ public:
     ///  a shared_ptr/weak_ptr of itself.
     Timer::ptr registerConditionTimer(unsigned long long us,
         boost::function<void ()> dg,
-        boost::weak_ptr<void> weakCond,
+        std::weak_ptr<void> weakCond,
         bool recurring = false);
 
     /// @return How long until the next timer expires; ~0ull if no timers

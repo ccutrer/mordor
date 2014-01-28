@@ -2,8 +2,9 @@
 #define __MORDOR_ZIP_H__
 // Copyright (c) 2010 - Mozy, Inc.
 
+#include <memory>
+
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "exception.h"
 
@@ -52,8 +53,8 @@ public:
     /// @note Only one ZipEntry stream can be accessed at any one time from a
     /// single Zip; accessing the stream() of another ZipEntry will implicitly
     /// close the previously accessed one
-    boost::shared_ptr<Stream> stream();
-    boost::shared_ptr<Stream> stream() const;
+    std::shared_ptr<Stream> stream();
+    std::shared_ptr<Stream> stream() const;
 
 private:
     /// Writes the local file header (and extra field, if any)
@@ -133,7 +134,7 @@ public:
         INFER
     };
 public:
-    Zip(boost::shared_ptr<Stream> stream, OpenMode mode = INFER);
+    Zip(std::shared_ptr<Stream> stream, OpenMode mode = INFER);
 
     /// @pre stream->supportsWrite()
     ZipEntry &addFile();
@@ -151,11 +152,11 @@ private:
     void onFileEOF();
 
 private:
-    boost::shared_ptr<Stream> m_stream, m_fileStream;
-    boost::shared_ptr<LimitedStream> m_uncompressedStream, m_compressedStream;
-    boost::shared_ptr<DeflateStream> m_deflateStream;
-    boost::shared_ptr<CRC32Stream> m_crcStream;
-    boost::shared_ptr<NotifyStream> m_notifyStream;
+    std::shared_ptr<Stream> m_stream, m_fileStream;
+    std::shared_ptr<LimitedStream> m_uncompressedStream, m_compressedStream;
+    std::shared_ptr<DeflateStream> m_deflateStream;
+    std::shared_ptr<CRC32Stream> m_crcStream;
+    std::shared_ptr<NotifyStream> m_notifyStream;
     ZipEntry *m_currentFile;
     ZipEntry m_scratchFile;
     OpenMode m_mode;

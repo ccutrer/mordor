@@ -20,7 +20,7 @@ public:
 class anymap
 {
 public:
-    typedef boost::shared_ptr<anymap> ptr;
+    typedef std::shared_ptr<anymap> ptr;
 
 private:
     class anymaptypeinfo

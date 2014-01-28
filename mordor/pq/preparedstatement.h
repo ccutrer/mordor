@@ -35,7 +35,7 @@ public:
     };
 
 private:
-    PreparedStatement(boost::shared_ptr<PGconn> conn,
+    PreparedStatement(std::shared_ptr<PGconn> conn,
         const std::string &command, const std::string &name,
         SchedulerType *scheduler, ResultFormat format = BINARY)
         : m_conn(conn),
@@ -159,7 +159,7 @@ private:
     void ensure(size_t count);
 
 private:
-    boost::weak_ptr<PGconn> m_conn;
+    std::weak_ptr<PGconn> m_conn;
     std::string m_command;
     std::string m_name;
     SchedulerType *m_scheduler;

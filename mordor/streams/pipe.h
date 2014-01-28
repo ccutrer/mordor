@@ -2,9 +2,7 @@
 #define __MORDOR_PIPE_STREAM_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <utility>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #ifdef WINDOWS
 #include "handle.h"

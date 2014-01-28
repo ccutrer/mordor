@@ -70,7 +70,7 @@ static std::map<std::string, std::string> generateEnv()
     wchar_t *enviro = GetEnvironmentStringsW();
     if (!enviro)
         return result;
-    boost::shared_ptr<wchar_t> environScope(enviro, &FreeEnvironmentStringsW);
+    std::shared_ptr<wchar_t> environScope(enviro, &FreeEnvironmentStringsW);
     for (const wchar_t *env = enviro; *env; env += wcslen(env) + 1) {
         const wchar_t *equals = wcschr(env, '=');
         if (!equals)

@@ -2,9 +2,8 @@
 #define __MORDOR_IOMANAGER_IOCP_H__
 
 #include <map>
+#include <memory>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "scheduler.h"
@@ -27,17 +26,17 @@ struct AsyncEvent
 
     Scheduler  *m_scheduler;
     tid_t m_thread;
-    boost::shared_ptr<Fiber> m_fiber;
+    std::shared_ptr<Fiber> m_fiber;
 };
 
 class IOManager : public Scheduler, public TimerManager
 {
     friend class WaitBlock;
 private:
-    class WaitBlock : public boost::enable_shared_from_this<WaitBlock>
+    class WaitBlock : public std::enable_shared_from_this<WaitBlock>
     {
     public:
-        typedef boost::shared_ptr<WaitBlock> ptr;
+        typedef std::shared_ptr<WaitBlock> ptr;
     public:
         WaitBlock(IOManager &outer);
         ~WaitBlock();
@@ -56,7 +55,7 @@ private:
         HANDLE m_reconfigured;
         HANDLE m_handles[MAXIMUM_WAIT_OBJECTS];
         Scheduler *m_schedulers[MAXIMUM_WAIT_OBJECTS];
-        boost::shared_ptr<Fiber> m_fibers[MAXIMUM_WAIT_OBJECTS];
+        std::shared_ptr<Fiber> m_fibers[MAXIMUM_WAIT_OBJECTS];
         boost::function<void ()> m_dgs[MAXIMUM_WAIT_OBJECTS];
         bool m_recurring[MAXIMUM_WAIT_OBJECTS];
         int m_inUseCount;

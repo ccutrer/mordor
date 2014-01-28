@@ -8,7 +8,7 @@ using namespace Mordor;
 class TestLogSink : public LogSink
 {
 public:
-    typedef boost::shared_ptr<TestLogSink> ptr;
+    typedef std::shared_ptr<TestLogSink> ptr;
 
     void log(const std::string &logger,
              boost::posix_time::ptime now, unsigned long long elapsed,

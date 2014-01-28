@@ -76,14 +76,14 @@ public:
     struct CopyParams
     {
     protected:
-        CopyParams(const std::string &table, boost::shared_ptr<PGconn> conn,
+        CopyParams(const std::string &table, std::shared_ptr<PGconn> conn,
             SchedulerType *scheduler);
 
     public:
         virtual ~CopyParams() {}
 
         /// Execute
-        virtual boost::shared_ptr<Stream> operator()() = 0;
+        virtual std::shared_ptr<Stream> operator()() = 0;
 
         CopyParams &columns(const std::vector<std::string> &columns);
 
@@ -98,12 +98,12 @@ public:
         CopyParams &notNullQuoteColumns(const std::vector<std::string> &columns);
 
     protected:
-        boost::shared_ptr<Stream> execute(bool out);
+        std::shared_ptr<Stream> execute(bool out);
 
     private:
         std::string m_table;
         SchedulerType *m_scheduler;
-        boost::shared_ptr<PGconn> m_conn;
+        std::shared_ptr<PGconn> m_conn;
         std::vector<std::string> m_columns, m_notNullQuoteColumns;
         bool m_binary, m_csv, m_header;
         char m_delimiter, m_quote, m_escape;
@@ -114,28 +114,28 @@ public:
     {
     private:
         friend class Connection;
-        CopyInParams(const std::string &table, boost::shared_ptr<PGconn> conn,
+        CopyInParams(const std::string &table, std::shared_ptr<PGconn> conn,
             SchedulerType *scheduler)
             : CopyParams(table, conn, scheduler)
         {}
 
     public:
         /// Execute
-        boost::shared_ptr<Stream> operator()();
+        std::shared_ptr<Stream> operator()();
     };
 
     struct CopyOutParams : public CopyParams
     {
     private:
         friend class Connection;
-        CopyOutParams(const std::string &table, boost::shared_ptr<PGconn> conn,
+        CopyOutParams(const std::string &table, std::shared_ptr<PGconn> conn,
             SchedulerType *scheduler)
             : CopyParams(table, conn, scheduler)
         {}
 
     public:
         /// Execute
-        boost::shared_ptr<Stream> operator()();
+        std::shared_ptr<Stream> operator()();
     };
 
     /// See http://www.postgresql.org/docs/current/static/sql-copy.html for the
@@ -148,7 +148,7 @@ public:
 private:
     std::string m_conninfo;
     SchedulerType *m_scheduler;
-    boost::shared_ptr<PGconn> m_conn;
+    std::shared_ptr<PGconn> m_conn;
 };
 
 // Internal functions

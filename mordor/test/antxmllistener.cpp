@@ -20,7 +20,7 @@ namespace Test {
 class AntXMLLogSink : public LogSink
 {
 public:
-    typedef boost::shared_ptr<AntXMLLogSink> ptr;
+    typedef std::shared_ptr<AntXMLLogSink> ptr;
 
     AntXMLLogSink() : m_out(NULL), m_err(NULL)
     {}

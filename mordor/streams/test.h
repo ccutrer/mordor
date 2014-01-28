@@ -12,7 +12,7 @@ namespace Mordor {
 class TestStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<TestStream> ptr;
+    typedef std::shared_ptr<TestStream> ptr;
 
 public:
     TestStream(Stream::ptr parent)

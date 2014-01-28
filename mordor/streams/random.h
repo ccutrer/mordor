@@ -16,7 +16,7 @@ namespace Mordor {
 class RandomStream : public Stream
 {
 public:
-    typedef boost::shared_ptr<RandomStream> ptr;
+    typedef std::shared_ptr<RandomStream> ptr;
 
     RandomStream();
     ~RandomStream();

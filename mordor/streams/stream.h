@@ -2,10 +2,10 @@
 #define __MORDOR_STREAM_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <memory>
 #include <string>
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
 #include "mordor/predef.h"
@@ -29,7 +29,7 @@ struct Buffer;
 class Stream : boost::noncopyable
 {
 public:
-    typedef boost::shared_ptr<Stream> ptr;
+    typedef std::shared_ptr<Stream> ptr;
 
     /// Flags for which end of a Stream to close
     enum CloseType {

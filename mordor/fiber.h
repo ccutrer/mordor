@@ -3,10 +3,9 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
 #include <list>
+#include <memory>
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "exception.h"
@@ -57,12 +56,12 @@
 namespace Mordor {
 
 /// Cooperative Thread
-class Fiber : public boost::enable_shared_from_this<Fiber>
+class Fiber : public std::enable_shared_from_this<Fiber>
 {
     template <class T> friend class FiberLocalStorageBase;
 public:
-    typedef boost::shared_ptr<Fiber> ptr;
-    typedef boost::weak_ptr<Fiber> weak_ptr;
+    typedef std::shared_ptr<Fiber> ptr;
+    typedef std::weak_ptr<Fiber> weak_ptr;
 
     /// The current execution state of a Fiber
     enum State

@@ -569,7 +569,7 @@ struct ExceptionDestructsBeforeFiberDestructsException : virtual Exception
     ~ExceptionDestructsBeforeFiberDestructsException() throw() {}
 
 private:
-    boost::shared_ptr<LastObject> m_lastObject;
+    std::shared_ptr<LastObject> m_lastObject;
 };
 }
 

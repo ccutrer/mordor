@@ -12,7 +12,7 @@ namespace Mordor {
 class HandleStream : public Stream
 {
 public:
-    typedef boost::shared_ptr<HandleStream> ptr;
+    typedef std::shared_ptr<HandleStream> ptr;
 
 protected:
     HandleStream();

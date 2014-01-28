@@ -15,7 +15,7 @@ namespace Mordor {
 class HashStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<HashStream> ptr;
+    typedef std::shared_ptr<HashStream> ptr;
 
 public:
     HashStream(Stream::ptr parent, bool own = true)
@@ -46,7 +46,7 @@ protected:
 class SHAStream : public HashStream
 {
 public:
-    typedef boost::shared_ptr<SHAStream> ptr;
+    typedef std::shared_ptr<SHAStream> ptr;
 
 protected:
     SHAStream(Stream::ptr parent, bool own = true)

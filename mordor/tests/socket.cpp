@@ -37,7 +37,7 @@ establishConn(IOManager &ioManager)
     Connection result;
     std::vector<Address::ptr> addresses = Address::lookup("localhost");
     MORDOR_TEST_ASSERT(!addresses.empty());
-    result.address = boost::dynamic_pointer_cast<IPAddress>(addresses.front());
+    result.address = std::dynamic_pointer_cast<IPAddress>(addresses.front());
     result.listen = result.address->createSocket(ioManager, SOCK_STREAM);
     unsigned int opt = 1;
     result.listen->setOption(SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));

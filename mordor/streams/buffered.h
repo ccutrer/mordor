@@ -21,7 +21,7 @@ namespace Mordor {
 class BufferedStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<BufferedStream> ptr;
+    typedef std::shared_ptr<BufferedStream> ptr;
 
     BufferedStream(Stream::ptr parent, bool own = true);
 

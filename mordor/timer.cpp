@@ -36,7 +36,7 @@ static ConfigVar<unsigned long long>::ptr g_clockRolloverThreshold =
     "Expire all timers if the clock goes backward by >= this amount");
 
 static void
-stubOnTimer(boost::weak_ptr<void> weakCond, boost::function<void ()> dg);
+stubOnTimer(std::weak_ptr<void> weakCond, boost::function<void ()> dg);
 
 #ifdef WINDOWS
 static unsigned long long queryFrequency()
@@ -201,7 +201,7 @@ TimerManager::registerTimer(unsigned long long us, boost::function<void ()> dg,
 Timer::ptr
 TimerManager::registerConditionTimer(unsigned long long us,
     boost::function<void ()> dg,
-    boost::weak_ptr<void> weakCond,
+    std::weak_ptr<void> weakCond,
     bool recurring)
 {
     return registerTimer(us,
@@ -211,9 +211,9 @@ TimerManager::registerConditionTimer(unsigned long long us,
 
 static void
 stubOnTimer(
-    boost::weak_ptr<void> weakCond, boost::function<void ()> dg)
+    std::weak_ptr<void> weakCond, boost::function<void ()> dg)
 {
-    boost::shared_ptr<void> temp = weakCond.lock();
+    std::shared_ptr<void> temp = weakCond.lock();
     if (temp) {
         dg();
     } else {

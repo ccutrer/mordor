@@ -17,7 +17,7 @@ struct EntityChangedException : virtual Exception {};
 class HTTPStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<HTTPStream> ptr;
+    typedef std::shared_ptr<HTTPStream> ptr;
 
 public:
     HTTPStream(const URI &uri, HTTP::RequestBroker::ptr requestBroker,
@@ -90,7 +90,7 @@ public:
 private:
     void start(size_t length);
     void stat();
-    void doWrite(boost::shared_ptr<HTTP::ClientRequest> request);
+    void doWrite(std::shared_ptr<HTTP::ClientRequest> request);
     void startWrite();
     void clearParent();
 
@@ -106,7 +106,7 @@ private:
     size_t *mp_retries;
     bool m_writeInProgress, m_abortWrite;
     Future<> m_writeFuture, m_writeFuture2;
-    boost::shared_ptr<HTTP::ClientRequest> m_writeRequest;
+    std::shared_ptr<HTTP::ClientRequest> m_writeRequest;
     boost::exception_ptr m_writeException;
 };
 

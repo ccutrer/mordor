@@ -3,10 +3,10 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
 #include <list>
+#include <memory>
 #include <set>
 
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "connection.h"
@@ -26,14 +26,14 @@ namespace HTTP {
 class ClientConnection;
 class RequestBroker;
 
-class ClientRequest : public boost::enable_shared_from_this<ClientRequest>, boost::noncopyable
+class ClientRequest : public std::enable_shared_from_this<ClientRequest>, boost::noncopyable
 {
 private:
     friend class ClientConnection;
 
 public:
-    typedef boost::shared_ptr<ClientRequest> ptr;
-    typedef boost::weak_ptr<ClientRequest> weak_ptr;
+    typedef std::shared_ptr<ClientRequest> ptr;
+    typedef std::weak_ptr<ClientRequest> weak_ptr;
 
     /// The ClientRequest has a state for sending the request and receiving
     /// the response.  It progresses through these states (possibly skipping
@@ -56,28 +56,28 @@ public:
     };
 
 private:
-    ClientRequest(boost::shared_ptr<ClientConnection> conn, const Request &request);
+    ClientRequest(std::shared_ptr<ClientConnection> conn, const Request &request);
 
 public:
     ~ClientRequest();
 
-    boost::shared_ptr<ClientConnection> connection() { return m_conn; }
+    std::shared_ptr<ClientConnection> connection() { return m_conn; }
     State requestState() const { return m_requestState; }
     State responseState() const { return m_responseState; }
 
     Request &request();
     bool hasRequestBody() const;
-    boost::shared_ptr<Stream> requestStream();
-    boost::shared_ptr<Multipart> requestMultipart();
+    std::shared_ptr<Stream> requestStream();
+    std::shared_ptr<Multipart> requestMultipart();
     EntityHeaders &requestTrailer();
 
     const Response &response();
     bool hasResponseBody();
-    boost::shared_ptr<Stream> responseStream();
-    boost::shared_ptr<Multipart> responseMultipart();
+    std::shared_ptr<Stream> responseStream();
+    std::shared_ptr<Multipart> responseMultipart();
     const EntityHeaders &responseTrailer() const;
 
-    boost::shared_ptr<Stream> stream();
+    std::shared_ptr<Stream> stream();
 
     void cancel(bool abort = false) { cancel(abort, false); }
     void finish();
@@ -97,7 +97,7 @@ public:
     };
 
     // use a null pointer to restore the default logger
-    static void setRequestLogger(boost::shared_ptr<RequestLogger> newRequestLogger);
+    static void setRequestLogger(std::shared_ptr<RequestLogger> newRequestLogger);
 
 private:
     void waitForRequest();
@@ -108,21 +108,21 @@ private:
     void cancel(bool abort, bool error);
 
 private:
-    boost::shared_ptr<ClientConnection> m_conn;
+    std::shared_ptr<ClientConnection> m_conn;
     unsigned long long m_requestNumber;
     Scheduler *m_scheduler;
-    boost::shared_ptr<Fiber> m_fiber;
+    std::shared_ptr<Fiber> m_fiber;
     Request m_request;
     Response m_response;
     EntityHeaders m_requestTrailer, m_responseTrailer;
     State m_requestState, m_responseState;
     boost::exception_ptr m_priorResponseException;
     bool m_badTrailer, m_incompleteTrailer, m_hasResponseBody;
-    boost::shared_ptr<Stream> m_requestStream;
-    boost::weak_ptr<Stream> m_responseStream;
-    boost::shared_ptr<Multipart> m_requestMultipart;
-    boost::weak_ptr<Multipart> m_responseMultipart;
-    static boost::shared_ptr<RequestLogger> msp_requestLogger;
+    std::shared_ptr<Stream> m_requestStream;
+    std::weak_ptr<Stream> m_responseStream;
+    std::shared_ptr<Multipart> m_requestMultipart;
+    std::weak_ptr<Multipart> m_responseMultipart;
+    static std::shared_ptr<RequestLogger> msp_requestLogger;
 };
 
 // Logically the entire response is unexpected
@@ -146,16 +146,16 @@ private:
     ClientRequest::ptr m_request;
 };
 
-class ClientConnection : public Connection, public boost::enable_shared_from_this<ClientConnection>, boost::noncopyable
+class ClientConnection : public Connection, public std::enable_shared_from_this<ClientConnection>, boost::noncopyable
 {
 private:
     friend class ClientRequest;
 
 public:
-    typedef boost::shared_ptr<ClientConnection> ptr;
+    typedef std::shared_ptr<ClientConnection> ptr;
 
 public:
-    ClientConnection(boost::shared_ptr<Stream> stream,
+    ClientConnection(std::shared_ptr<Stream> stream,
         TimerManager *timerManager = NULL);
     ~ClientConnection();
 
@@ -178,9 +178,9 @@ private:
 
 private:
     boost::mutex m_mutex;
-    boost::shared_ptr<TimeoutStream> m_timeoutStream;
+    std::shared_ptr<TimeoutStream> m_timeoutStream;
     unsigned long long m_readTimeout, m_idleTimeout;
-    boost::shared_ptr<Timer> m_idleTimer;
+    std::shared_ptr<Timer> m_idleTimer;
     TimerManager *m_timerManager;
     boost::function<void ()> m_idleDg;
     std::list<ClientRequest *> m_pendingRequests;
@@ -196,20 +196,20 @@ private:
 
 // Helper functions
 /// Send a request with a body
-ClientRequest::ptr request(boost::shared_ptr<RequestBroker> broker,
+ClientRequest::ptr request(std::shared_ptr<RequestBroker> broker,
     Request &requestHeaders, const std::string &body,
     bool allowPipelining = true);
 
 /// Send a request with a body
-ClientRequest::ptr request(boost::shared_ptr<RequestBroker> broker,
+ClientRequest::ptr request(std::shared_ptr<RequestBroker> broker,
     Request &requestHeaders, const Buffer &body,
     bool allowPipelining = true);
 
 /// Do a POST
-ClientRequest::ptr post(boost::shared_ptr<RequestBroker> broker,
+ClientRequest::ptr post(std::shared_ptr<RequestBroker> broker,
     Request &requestHeaders, const URI::QueryString &qs,
     bool allowPipelining = true);
-inline ClientRequest::ptr post(boost::shared_ptr<RequestBroker> broker,
+inline ClientRequest::ptr post(std::shared_ptr<RequestBroker> broker,
     const URI &uri, const URI::QueryString &qs,
     bool allowPipelining = true)
 {

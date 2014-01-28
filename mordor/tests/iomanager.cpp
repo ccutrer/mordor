@@ -16,7 +16,7 @@ namespace
     class EmptyTimeClass
     {
     public:
-        typedef boost::shared_ptr<EmptyTimeClass> ptr;
+        typedef std::shared_ptr<EmptyTimeClass> ptr;
     public:
         EmptyTimeClass()
             : m_timedOut(false)

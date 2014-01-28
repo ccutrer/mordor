@@ -10,7 +10,7 @@ namespace {
 class DummyServlet : public Servlet
 {
 public:
-    void request(boost::shared_ptr<ServerRequest> request) {}
+    void request(std::shared_ptr<ServerRequest> request) {}
 };
 }
 

@@ -226,7 +226,7 @@ Connection::prepare(const std::string &command, const std::string &name, Prepare
             if (!PQsendPrepare(m_conn.get(), name.c_str(), command.c_str(), 0, NULL))
                 throwException(m_conn.get());
             flush(m_conn.get(), m_scheduler);
-            boost::shared_ptr<PGresult> result(nextResult(m_conn.get(), m_scheduler),
+            std::shared_ptr<PGresult> result(nextResult(m_conn.get(), m_scheduler),
                 &PQclear);
             while (result) {
                 ExecStatusType status = PQresultStatus(result.get());
@@ -243,7 +243,7 @@ Connection::prepare(const std::string &command, const std::string &name, Prepare
         } else
 #endif
         {
-            boost::shared_ptr<PGresult> result(PQprepare(m_conn.get(),
+            std::shared_ptr<PGresult> result(PQprepare(m_conn.get(),
                 name.c_str(), command.c_str(), 0, NULL), &PQclear);
             if (!result)
                 throwException(m_conn.get());

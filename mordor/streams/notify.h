@@ -11,7 +11,7 @@ namespace Mordor {
 class NotifyStream : public FilterStream
 {
 public:
-    typedef boost::shared_ptr<NotifyStream> ptr;
+    typedef std::shared_ptr<NotifyStream> ptr;
 public:
     NotifyStream(Stream::ptr parent, bool own = true)
         : FilterStream(parent, own)

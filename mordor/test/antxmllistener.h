@@ -1,7 +1,7 @@
 #ifndef __MORDOR_TEST_ANT_XML_LISTENER_H__
 #define __MORDOR_TEST_ANT_XML_LISTENER_H__
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "test.h"
 
@@ -47,12 +47,12 @@ private:
         size_t errors;
         size_t failures;
         std::map<std::string, TestInfo> tests;
-        boost::shared_ptr<std::ostringstream> out;
-        boost::shared_ptr<std::ostringstream> err;
+        std::shared_ptr<std::ostringstream> out;
+        std::shared_ptr<std::ostringstream> err;
     };
 
 private:
-    boost::shared_ptr<AntXMLLogSink> m_logSink;
+    std::shared_ptr<AntXMLLogSink> m_logSink;
     std::string m_directory;
     std::map<std::string, TestSuiteInfo > m_testSuites;
 };

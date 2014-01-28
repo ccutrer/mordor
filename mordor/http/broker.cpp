@@ -53,7 +53,7 @@ createRequestBroker(const RequestBrokerOptions &options)
     connectionCache->verifySslCertificateHost(options.verifySslCertificateHost);
 
     RequestBroker::ptr requestBroker(new BaseRequestBroker(
-        boost::static_pointer_cast<ConnectionBroker>(connectionCache)));
+        std::static_pointer_cast<ConnectionBroker>(connectionCache)));
 
     if (options.getCredentialsDg || options.getProxyCredentialsDg)
         requestBroker.reset(new AuthRequestBroker(requestBroker,
@@ -283,7 +283,7 @@ ConnectionCache::getConnectionViaProxyFromCache(const URI &uri, const URI &proxy
         if (it != m_conns.end() &&
             !it->second->connections.empty() &&
             it->second->connections.size() >= m_connectionsPerHost) {
-            boost::shared_ptr<ConnectionInfo> info = it->second;
+            std::shared_ptr<ConnectionInfo> info = it->second;
             ConnectionList &connsForThisUri = info->connections;
             // Assign it2 to point to the connection with the
             // least number of outstanding requests
@@ -331,7 +331,7 @@ ConnectionCache::getConnectionViaProxy(const URI &uri, const URI &proxy,
 
     // Make sure we have a ConnectionList and mutex for this endpoint
     CachedConnectionMap::iterator it = m_conns.find(endpoint);
-    boost::shared_ptr<ConnectionInfo> info;
+    std::shared_ptr<ConnectionInfo> info;
     if (it == m_conns.end()) {
         info.reset(new ConnectionInfo(m_mutex));
         it = m_conns.insert(std::make_pair(endpoint, info)).first;

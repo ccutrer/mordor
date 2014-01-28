@@ -2,7 +2,7 @@
 #define __MORDOR_HTTP_SERVLETS_CONFIG_H__
 // Copyright (c) 2010 - Mozy, Inc.
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "mordor/http/servlet.h"
 
@@ -25,9 +25,9 @@ public:
         : m_access(access)
     {}
 
-    void request(boost::shared_ptr<ServerRequest> request)
+    void request(std::shared_ptr<ServerRequest> request)
     { return this->request(request, m_access); }
-    void request(boost::shared_ptr<ServerRequest> request, Access access);
+    void request(std::shared_ptr<ServerRequest> request, Access access);
 
 private:
     Access m_access;

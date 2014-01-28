@@ -178,7 +178,7 @@ Result
 PreparedStatement::execute()
 {
     PGconn *conn = m_conn.lock().get();
-    boost::shared_ptr<PGresult> result, next;
+    std::shared_ptr<PGresult> result, next;
     int nParams = (int)m_params.size();
     Oid *paramTypes = NULL;
     int *paramLengths = NULL, *paramFormats = NULL;

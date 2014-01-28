@@ -15,7 +15,7 @@ namespace Mordor {
 class FilterStream : public Stream
 {
 public:
-    typedef boost::shared_ptr<FilterStream> ptr;
+    typedef std::shared_ptr<FilterStream> ptr;
 
 public:
     FilterStream(Stream::ptr parent, bool own = true)

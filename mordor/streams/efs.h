@@ -37,7 +37,7 @@ private:
         PULONG ulLength);
 
 private:
-    boost::shared_ptr<Fiber> m_fiber;
+    std::shared_ptr<Fiber> m_fiber;
     void *m_context;
     bool m_read, m_own;
     union {

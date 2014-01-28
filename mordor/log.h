@@ -3,15 +3,14 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
 #include <list>
+#include <memory>
 #include <set>
 #include <sstream>
 
 #include "predef.h"
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
-#include <boost/shared_ptr.hpp>
 
 // For tid_t
 #include "thread.h"
@@ -101,15 +100,15 @@ public:
     };
 
     /// Find (or create) a logger with the specified name
-    static boost::shared_ptr<Logger> lookup(const std::string &name);
+    static std::shared_ptr<Logger> lookup(const std::string &name);
 
     /// Call dg for each registered Logger.
     ///
     /// This may include implicitly created intermediate loggers.
-    static void visit(boost::function<void (boost::shared_ptr<Logger>)> dg);
+    static void visit(boost::function<void (std::shared_ptr<Logger>)> dg);
 
     /// Return the root of the Logger hierarchy
-    static boost::shared_ptr<Logger> root();
+    static std::shared_ptr<Logger> root();
 };
 
 /// Abstract base class for receiving log messages
@@ -118,7 +117,7 @@ class LogSink
 {
     friend class Logger;
 public:
-    typedef boost::shared_ptr<LogSink> ptr;
+    typedef std::shared_ptr<LogSink> ptr;
 public:
 
     virtual ~LogSink() {}
@@ -211,7 +210,7 @@ public:
 
 private:
     std::string m_file;
-    boost::shared_ptr<Stream> m_stream;
+    std::shared_ptr<Stream> m_stream;
 };
 
 /// LogEvent is an intermediary class.  It is returned by Logger::log, owns a
@@ -223,7 +222,7 @@ struct LogEvent
 {
     friend class Logger;
 private:
-    LogEvent(boost::shared_ptr<Logger> logger, Log::Level level,
+    LogEvent(std::shared_ptr<Logger> logger, Log::Level level,
         const char *file, int line)
         : m_logger(logger),
           m_level(level),
@@ -243,7 +242,7 @@ public:
     std::ostream &os() { return m_os; }
 
 private:
-    boost::shared_ptr<Logger> m_logger;
+    std::shared_ptr<Logger> m_logger;
     Log::Level m_level;
     const char *m_file;
     int m_line;
@@ -262,19 +261,19 @@ private:
 
 struct LoggerLess
 {
-    bool operator()(const boost::shared_ptr<Logger> &lhs,
-        const boost::shared_ptr<Logger> &rhs) const;
+    bool operator()(const std::shared_ptr<Logger> &lhs,
+        const std::shared_ptr<Logger> &rhs) const;
 };
 
 /// An individual Logger.
 /// @sa Log
 /// @sa LogMacros
-class Logger : public boost::enable_shared_from_this<Logger>
+class Logger : public std::enable_shared_from_this<Logger>
 {
     friend class Log;
     friend struct LoggerLess;
 public:
-    typedef boost::shared_ptr<Logger> ptr;
+    typedef std::shared_ptr<Logger> ptr;
 private:
     Logger();
     Logger(const std::string &name, Logger::ptr parent);
@@ -317,7 +316,7 @@ public:
 
 private:
     std::string m_name;
-    boost::weak_ptr<Logger> m_parent;
+    std::weak_ptr<Logger> m_parent;
     std::set<Logger::ptr, LoggerLess> m_children;
     Log::Level m_level;
     std::list<LogSink::ptr> m_sinks;

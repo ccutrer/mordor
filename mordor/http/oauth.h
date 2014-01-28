@@ -55,14 +55,14 @@ bool validate(const URI &uri, const std::string &method,
     const URI::QueryString &postParameters = URI::QueryString());
 
 std::pair<std::string, std::string>
-extractCredentials(boost::shared_ptr<ClientRequest> request);
+extractCredentials(std::shared_ptr<ClientRequest> request);
 
 class RequestBroker : public RequestBrokerFilter
 {
 public:
     RequestBroker(HTTP::RequestBroker::ptr parent,
         boost::function<bool (const URI &,
-            boost::shared_ptr<ClientRequest> /* priorRequest = ClientRequest::ptr() */,
+            std::shared_ptr<ClientRequest> /* priorRequest = ClientRequest::ptr() */,
             std::string & /* signatureMethod */,
             std::pair<std::string, std::string> & /* clientCredentials */,
             std::pair<std::string, std::string> & /* tokenCredentials */,
@@ -72,12 +72,12 @@ public:
           m_getCredentialsDg(getCredentialsDg)
     {}
 
-    boost::shared_ptr<ClientRequest> request(Request &requestHeaders,
+    std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (boost::shared_ptr<ClientRequest>)> bodyDg = NULL);
+        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
 
 private:
-    boost::function<bool (const URI &, boost::shared_ptr<ClientRequest>, std::string &,
+    boost::function<bool (const URI &, std::shared_ptr<ClientRequest>, std::string &,
         std::pair<std::string, std::string> &,
         std::pair<std::string, std::string> &,
         std::string &, size_t)> m_getCredentialsDg;

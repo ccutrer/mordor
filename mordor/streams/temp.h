@@ -15,7 +15,7 @@ typedef FDStream TempStreamBase;
 class TempStream : public TempStreamBase
 {
 public:
-    typedef boost::shared_ptr<TempStream> ptr;
+    typedef std::shared_ptr<TempStream> ptr;
 
 public:
     /// Create a stream representing a temporary file

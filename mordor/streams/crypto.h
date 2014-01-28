@@ -15,7 +15,7 @@ namespace Mordor {
 class CryptoStream : public MutatingFilterStream
 {
 public:
-    typedef boost::shared_ptr<CryptoStream> ptr;
+    typedef std::shared_ptr<CryptoStream> ptr;
     static const std::string RANDOM_IV;
 
     enum Direction {

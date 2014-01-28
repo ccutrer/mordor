@@ -516,7 +516,7 @@ ProxyCache::proxyFromSystemConfiguration(const URI &uri)
 }
 #endif
 
-boost::shared_ptr<Stream>
+std::shared_ptr<Stream>
 tunnel(RequestBroker::ptr requestBroker, const URI &proxy, const URI &target)
 {
     MORDOR_ASSERT(proxy.schemeDefined());

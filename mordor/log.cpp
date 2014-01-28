@@ -374,7 +374,7 @@ Logger::ptr Log::lookup(const std::string &name)
 }
 
 void
-Log::visit(boost::function<void (boost::shared_ptr<Logger>)> dg)
+Log::visit(boost::function<void (std::shared_ptr<Logger>)> dg)
 {
     std::list<Logger::ptr> toVisit;
     toVisit.push_back(root());

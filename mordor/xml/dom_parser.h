@@ -90,7 +90,7 @@ namespace DOM {
     class Document : public Element {
         friend class XMLParser;
     public:
-        typedef boost::shared_ptr<Document> ptr;
+        typedef std::shared_ptr<Document> ptr;
         NodeType nodeType() { return DOCUMENT; }
 
         Element *documentElement() { return m_docElement; }

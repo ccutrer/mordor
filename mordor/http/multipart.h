@@ -2,12 +2,11 @@
 #define __MORDOR_MULTIPART_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <memory>
 #include <string>
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "http.h"
 
@@ -21,17 +20,17 @@ struct MissingMultipartBoundaryException : virtual HTTP::Exception, virtual Stre
 struct InvalidMultipartBoundaryException : virtual HTTP::Exception
 {};
 
-class Multipart : public boost::enable_shared_from_this<Multipart>, boost::noncopyable
+class Multipart : public std::enable_shared_from_this<Multipart>, boost::noncopyable
 {
     friend class BodyPart;
 public:
-    typedef boost::shared_ptr<Multipart> ptr;
+    typedef std::shared_ptr<Multipart> ptr;
 
     static std::string randomBoundary();
 
-    Multipart(boost::shared_ptr<Stream> stream, std::string boundary);
+    Multipart(std::shared_ptr<Stream> stream, std::string boundary);
 
-    boost::shared_ptr<BodyPart> nextPart();
+    std::shared_ptr<BodyPart> nextPart();
     void finish();
 
     boost::function<void ()> multipartFinished;
@@ -40,9 +39,9 @@ private:
     void partDone();
 
 private:
-    boost::shared_ptr<Stream> m_stream;
+    std::shared_ptr<Stream> m_stream;
     std::string m_boundary;
-    boost::shared_ptr<BodyPart> m_currentPart;
+    std::shared_ptr<BodyPart> m_currentPart;
     bool m_finished;
 };
 
@@ -50,20 +49,20 @@ class BodyPart
 {
     friend class Multipart;
 public:
-    typedef boost::shared_ptr<BodyPart> ptr;
+    typedef std::shared_ptr<BodyPart> ptr;
 
 private:
     BodyPart(Multipart::ptr multipart);
 
 public:
     HTTP::EntityHeaders &headers();
-    boost::shared_ptr<Stream> stream();
+    std::shared_ptr<Stream> stream();
     Multipart::ptr multipart();
 
 private:
     HTTP::EntityHeaders m_headers;
     Multipart::ptr m_multipart;
-    boost::shared_ptr<Stream> m_stream;
+    std::shared_ptr<Stream> m_stream;
     Multipart::ptr m_childMultipart;
 };
 
