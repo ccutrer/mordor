@@ -13,7 +13,7 @@
 
 using namespace Mordor;
 
-static void accept(SSLStream::ptr server)
+static void acceptSSL(SSLStream::ptr server)
 {
     server->accept();
     server->flush();
@@ -27,7 +27,7 @@ MORDOR_UNITTEST(SSLStream, basic)
     SSLStream::ptr sslserver(new SSLStream(pipes.first, false));
     SSLStream::ptr sslclient(new SSLStream(pipes.second, true));
 
-    pool.schedule(std::bind(&accept, sslserver));
+    pool.schedule(std::bind(&acceptSSL, sslserver));
     sslclient->connect();
     pool.dispatch();
 
@@ -68,7 +68,7 @@ MORDOR_UNITTEST(SSLStream, duplexStress)
     SSLStream::ptr sslserver(new SSLStream(pipes.first, false));
     SSLStream::ptr sslclient(new SSLStream(pipes.second, true));
 
-    pool.schedule(std::bind(&accept, sslserver));
+    pool.schedule(std::bind(&acceptSSL, sslserver));
     sslclient->connect();
     pool.dispatch();
 
@@ -108,7 +108,7 @@ MORDOR_UNITTEST(SSLStream, forceDuplex)
     Stream::ptr server = sslserver, client = sslclient;
 
     int sequence = 0;
-    pool.schedule(std::bind(&accept, sslserver));
+    pool.schedule(std::bind(&acceptSSL, sslserver));
     sslclient->connect();
     pool.dispatch();
 
@@ -142,7 +142,7 @@ MORDOR_UNITTEST(SSLStream, incomingDataAfterShutdown)
 
     Stream::ptr server = sslserver, client = sslclient;
 
-    pool.schedule(std::bind(&accept, sslserver));
+    pool.schedule(std::bind(&acceptSSL, sslserver));
     sslclient->connect();
     pool.dispatch();
 
@@ -162,7 +162,7 @@ MORDOR_UNITTEST(SSLStream, acceptOverBuffering)
     SSLStream::ptr sslserver(new SSLStream(bufferedStream, false));
     SSLStream::ptr sslclient(new SSLStream(pipes.second, true));
 
-    pool.schedule(std::bind(&accept, sslserver));
+    pool.schedule(std::bind(&acceptSSL, sslserver));
     sslclient->connect();
     pool.dispatch();
 }

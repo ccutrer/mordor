@@ -23,6 +23,19 @@ class Future : boost::noncopyable
     friend void waitAll(Iterator start, Iterator end);
     template <class Iterator>
     friend size_t waitAny(Iterator start, Iterator end);
+
+    // due to a bug in Apple's STL
+    struct callstruct
+    {
+        callstruct(std::function<void (const T &)> &dg, const T &t)
+          : m_dg(dg),
+            m_t(t)
+        {}
+        void operator()() { m_dg(m_t); }
+
+        std::function<void (const T &)> &m_dg;
+        const T &m_t;
+    };
 public:
     Future(std::function<void (const T &)> dg = nullptr, Scheduler *scheduler = NULL)
         : m_fiber(0),
@@ -67,7 +80,7 @@ public:
         if (newValue == 0x2) {
             MORDOR_ASSERT(m_dg);
             if (m_scheduler)
-                m_scheduler->schedule(std::bind(m_dg, std::cref(m_t)));
+                m_scheduler->schedule(callstruct(m_dg, m_t));
             else
                 m_dg(m_t);
             return;

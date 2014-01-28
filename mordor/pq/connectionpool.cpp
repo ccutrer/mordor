@@ -79,7 +79,7 @@ std::shared_ptr<Connection> ConnectionPool::getConnection() {
     //the share_ptr stored in m_free/m_busyConnections
     std::shared_ptr<Connection> ret(
         conn.get(),
-        std::bind(&ConnectionPool::releaseConnection, this, _1));
+        std::bind(&ConnectionPool::releaseConnection, this, std::placeholders::_1));
     m_busyConnections.push_back(conn);
     m_freeConnections.erase(m_freeConnections.begin());
     return ret;
@@ -117,7 +117,7 @@ void
 associateConnectionPoolWithConfigVar(ConnectionPool &pool,
     ConfigVar<size_t>::ptr configVar)
 {
-  configVar->onChange.connect(std::bind(&ConnectionPool::resize, &pool, _1));
+  configVar->onChange.connect(std::bind(&ConnectionPool::resize, &pool, std::placeholders::_1));
   pool.resize(configVar->val());
 }
 

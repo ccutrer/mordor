@@ -58,17 +58,17 @@ MORDOR_UNITTEST(NotifyStream, basic)
     // hit EOF
     MORDOR_TEST_ASSERT_EQUAL(stream.read(buffer, 65536), 0U);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 1);
-    stream.notifyOnEof.clear();
+    stream.notifyOnEof = nullptr;
 
     stream.notifyOnFlush = boost::bind(onNotify, boost::ref(sequence));
     stream.flush();
     MORDOR_TEST_ASSERT_EQUAL(sequence, 2);
-    stream.notifyOnFlush.clear();
+    stream.notifyOnFlush = nullptr;
 
     stream.notifyOnClose = boost::bind(onNotify, boost::ref(sequence));
     stream.close();
     MORDOR_TEST_ASSERT_EQUAL(sequence, 3);
-    stream.notifyOnClose.clear();
+    stream.notifyOnClose = nullptr;
 }
 
 MORDOR_UNITTEST(NotifyStream, notifyOnExceptionSameThread)
