@@ -3,3 +3,4 @@ compiler:
   - clang
   - gcc
 script: autoreconf -i && ./configure && make check && mordor/tests/run_tests
+install: sudo apt-get install libboost-all-dev
