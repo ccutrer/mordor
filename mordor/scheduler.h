@@ -2,10 +2,10 @@
 #define __MORDOR_SCHEDULER_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
 #include <list>
 #include <memory>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -83,7 +83,7 @@ public:
     /// @param dg The functor to schedule
     /// @param thread Optionally provide a specific thread for the functor to
     /// run on
-    void schedule(boost::function<void ()> dg, tid_t thread = emptytid());
+    void schedule(std::function<void ()> dg, tid_t thread = emptytid());
 
     /// Schedule multiple items to be executed at once
 
@@ -178,13 +178,13 @@ private:
 
     bool scheduleNoLock(std::shared_ptr<Fiber> fiber,
         tid_t thread = emptytid());
-    bool scheduleNoLock(boost::function<void ()> dg,
+    bool scheduleNoLock(std::function<void ()> dg,
         tid_t thread = emptytid());
 
 private:
     struct FiberAndThread {
         std::shared_ptr<Fiber> fiber;
-        boost::function<void ()> dg;
+        std::function<void ()> dg;
         tid_t thread;
     };
     static ThreadLocalStorage<Scheduler *> t_scheduler;

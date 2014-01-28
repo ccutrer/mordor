@@ -115,7 +115,7 @@ Fiber::Fiber()
 #endif
 }
 
-Fiber::Fiber(boost::function<void ()> dg, size_t stacksize)
+Fiber::Fiber(std::function<void ()> dg, size_t stacksize)
 {
     g_statMaxFibers.update(atomicIncrement(g_cntFibers));
     stacksize += g_pagesize - 1;
@@ -174,7 +174,7 @@ Fiber::reset()
 }
 
 void
-Fiber::reset(boost::function<void ()> dg)
+Fiber::reset(std::function<void ()> dg)
 {
     m_exception = boost::exception_ptr();
     MORDOR_ASSERT(m_stack);

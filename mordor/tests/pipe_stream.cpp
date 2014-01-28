@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/exception.h"
 #include "mordor/fiber.h"
 #include "mordor/scheduler.h"
@@ -61,7 +59,7 @@ MORDOR_UNITTEST(PipeStream, basicInFibers)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&basicInFibers, pipe.first, boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&basicInFibers, pipe.first, std::ref(sequence)))));
 
     Buffer read;
     MORDOR_TEST_ASSERT_EQUAL(pipe.second->read(read, 10), 1u);
@@ -136,8 +134,8 @@ MORDOR_UNITTEST(PipeStream, blockingRead)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&blockingRead, pipe.second,
-        boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&blockingRead, pipe.second,
+        std::ref(sequence)))));
 
     Buffer output;
     MORDOR_TEST_ASSERT_EQUAL(pipe.first->read(output, 10), 5u);
@@ -159,8 +157,8 @@ MORDOR_UNITTEST(PipeStream, blockingWrite)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&blockingWrite, pipe.second,
-        boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&blockingWrite, pipe.second,
+        std::ref(sequence)))));
 
     MORDOR_TEST_ASSERT_EQUAL(pipe.first->write("hello"), 5u);
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 2);
@@ -195,8 +193,8 @@ MORDOR_UNITTEST(PipeStream, closeOnBlockingReader)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&closeOnBlockingReader,
-        pipe.first, boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&closeOnBlockingReader,
+        pipe.first, std::ref(sequence)))));
 
     Buffer output;
     MORDOR_TEST_ASSERT_EQUAL(pipe.second->read(output, 10), 0u);
@@ -216,8 +214,8 @@ MORDOR_UNITTEST(PipeStream, closeOnBlockingWriter)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&closeOnBlockingWriter, pipe.first,
-        boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&closeOnBlockingWriter, pipe.first,
+        std::ref(sequence)))));
 
     MORDOR_TEST_ASSERT_EQUAL(pipe.second->write("hello"), 5u);
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 2);
@@ -241,8 +239,8 @@ MORDOR_UNITTEST(PipeStream, destructOnBlockingReader)
     WorkerPool pool;
     int sequence = 1;
 
-    Fiber::ptr f = Fiber::ptr(new Fiber(boost::bind(&destructOnBlockingReader,
-        std::weak_ptr<Stream>(pipe.first), boost::ref(sequence))));
+    Fiber::ptr f = Fiber::ptr(new Fiber(std::bind(&destructOnBlockingReader,
+        std::weak_ptr<Stream>(pipe.first), std::ref(sequence))));
     f->call();
     pipe.first.reset();
     pool.schedule(f);
@@ -268,8 +266,8 @@ MORDOR_UNITTEST(PipeStream, destructOnBlockingWriter)
     WorkerPool pool;
     int sequence = 1;
 
-    Fiber::ptr f = Fiber::ptr(new Fiber(boost::bind(&destructOnBlockingWriter,
-        std::weak_ptr<Stream>(pipe.first), boost::ref(sequence))));
+    Fiber::ptr f = Fiber::ptr(new Fiber(std::bind(&destructOnBlockingWriter,
+        std::weak_ptr<Stream>(pipe.first), std::ref(sequence))));
     f->call();
     pipe.first.reset();
     pool.schedule(f);
@@ -293,8 +291,8 @@ MORDOR_UNITTEST(PipeStream, cancelOnBlockingReader)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&cancelOnBlockingReader,
-        pipe.first, boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&cancelOnBlockingReader,
+        pipe.first, std::ref(sequence)))));
 
     Buffer output;
     MORDOR_TEST_ASSERT_EXCEPTION(pipe.first->read(output, 10), OperationAbortedException);
@@ -320,8 +318,8 @@ MORDOR_UNITTEST(PipeStream, cancelOnBlockingWriter)
     WorkerPool pool;
     int sequence = 1;
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&cancelOnBlockingWriter, pipe.first,
-        boost::ref(sequence)))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&cancelOnBlockingWriter, pipe.first,
+        std::ref(sequence)))));
     Scheduler::yield();
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 3);
     pipe.first->cancelWrite();
@@ -377,7 +375,7 @@ MORDOR_UNITTEST(PipeStream, threadStress)
     std::pair<Stream::ptr, Stream::ptr> pipe = pipeStream();
     WorkerPool pool(2);
 
-    pool.schedule(Fiber::ptr(new Fiber(boost::bind(&threadStress, pipe.first))));
+    pool.schedule(Fiber::ptr(new Fiber(std::bind(&threadStress, pipe.first))));
     threadStress(pipe.second);
 }
 
@@ -391,7 +389,7 @@ MORDOR_UNITTEST(PipeStream, eventOnRemoteClose)
     std::pair<Stream::ptr, Stream::ptr> pipe = pipeStream();
 
     bool remoteClosed = false;
-    pipe.first->onRemoteClose().connect(boost::bind(&closed, boost::ref(remoteClosed)));
+    pipe.first->onRemoteClose().connect(std::bind(&closed, std::ref(remoteClosed)));
     pipe.second->close();
     MORDOR_TEST_ASSERT(remoteClosed);
 }
@@ -402,7 +400,7 @@ MORDOR_UNITTEST(PipeStream, eventOnRemoteReset)
 
     bool remoteClosed = false;
     boost::signals2::signal<void ()> m_onRemoteClose;
-    pipe.first->onRemoteClose().connect(boost::bind(&closed, boost::ref(remoteClosed)));
+    pipe.first->onRemoteClose().connect(std::bind(&closed, std::ref(remoteClosed)));
     pipe.second.reset();
     MORDOR_TEST_ASSERT(remoteClosed);
 }

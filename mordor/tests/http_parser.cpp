@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/http/parser.h"
 #include "mordor/streams/buffered.h"
 #include "mordor/streams/duplex.h"

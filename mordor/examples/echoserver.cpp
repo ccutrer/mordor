@@ -2,7 +2,7 @@
 
 #include "mordor/predef.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "mordor/config.h"
 #include "mordor/daemon.h"
@@ -35,7 +35,7 @@ void socketServer(Socket::ptr listen)
     while (true) {
         Socket::ptr socket = listen->accept();
         Stream::ptr stream(new SocketStream(socket));
-        Scheduler::getThis()->schedule(boost::bind(&streamConnection, stream));
+        Scheduler::getThis()->schedule(std::bind(&streamConnection, stream));
     }
 }
 
@@ -48,14 +48,14 @@ void startSocketServer(IOManager &ioManager)
         ++it) {
         Socket::ptr s = (*it)->createSocket(ioManager, SOCK_STREAM);
         s->bind(*it);
-        Scheduler::getThis()->schedule(boost::bind(&socketServer, s));
+        Scheduler::getThis()->schedule(std::bind(&socketServer, s));
     }
 
 #ifndef WINDOWS
     UnixAddress echoaddress("/tmp/echo");
     Socket::ptr s = echoaddress.createSocket(ioManager, SOCK_STREAM);
     s->bind(echoaddress);
-    Scheduler::getThis()->schedule(boost::bind(&socketServer, s));
+    Scheduler::getThis()->schedule(std::bind(&socketServer, s));
 #endif
 }
 
@@ -107,7 +107,7 @@ void httpServer(Socket::ptr listen)
         Socket::ptr socket = listen->accept();
         Stream::ptr stream(new SocketStream(socket));
         HTTP::ServerConnection::ptr conn(new HTTP::ServerConnection(stream, &httpRequest));
-        Scheduler::getThis()->schedule(boost::bind(&HTTP::ServerConnection::processRequests, conn));
+        Scheduler::getThis()->schedule(std::bind(&HTTP::ServerConnection::processRequests, conn));
     }
 }
 
@@ -120,7 +120,7 @@ void startHttpServer(IOManager &ioManager)
         ++it) {
         Socket::ptr s = (*it)->createSocket(ioManager, SOCK_STREAM);
         s->bind(*it);
-        Scheduler::getThis()->schedule(boost::bind(&httpServer, s));
+        Scheduler::getThis()->schedule(std::bind(&httpServer, s));
     }
 }
 
@@ -130,7 +130,7 @@ void namedPipeServer(IOManager &ioManager)
     while (true) {
         NamedPipeStream::ptr stream(new NamedPipeStream("\\\\.\\pipe\\echo", NamedPipeStream::READWRITE, &ioManager));
         stream->accept();
-        Scheduler::getThis()->schedule(boost::bind(&streamConnection, stream));
+        Scheduler::getThis()->schedule(std::bind(&streamConnection, stream));
     }
 }
 #endif
@@ -142,8 +142,8 @@ int run(int argc, char *argv[])
         startSocketServer(ioManager);
         startHttpServer(ioManager);
 #ifdef WINDOWS
-        ioManager.schedule(boost::bind(&namedPipeServer, boost::ref(ioManager)));
-        ioManager.schedule(boost::bind(&namedPipeServer, boost::ref(ioManager)));
+        ioManager.schedule(std::bind(&namedPipeServer, std::ref(ioManager)));
+        ioManager.schedule(std::bind(&namedPipeServer, std::ref(ioManager)));
 #endif
         ioManager.dispatch();
     } catch (...) {

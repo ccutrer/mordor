@@ -178,7 +178,7 @@ AntXMLListener::testsComplete()
                 << (double)(it->second.end - it->second.start) / 1000000ull
                 << "\">" << std::endl
                 << "  <properties>" << std::endl;
-            Config::visit(boost::bind(&listProperties, &os, _1));
+            Config::visit(std::bind(&listProperties, &os, std::placeholders::_1));
             os << "  </properties>" << std::endl;
             for (std::map<std::string, TestInfo>::const_iterator it2 = it->second.tests.begin();
                 it2 != it->second.tests.end();

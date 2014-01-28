@@ -2,9 +2,8 @@
 
 #include "http.h"
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
+#include <functional>
 #include <iostream>
 
 #include "mordor/assert.h"
@@ -394,8 +393,9 @@ preferred(const AcceptListWithParameters &accept, const AcceptListWithParameters
                 preferred.push_back(*availableIt);
         }
         if (!preferred.empty()) {
-            std::stable_sort(preferred.begin(), preferred.end(), boost::bind(
-                &isPreferred, boost::ref(accept), _1, _2));
+            std::stable_sort(preferred.begin(), preferred.end(), std::bind(
+                &isPreferred, std::ref(accept), std::placeholders::_1,
+				std::placeholders::_2));
             return &*std::find(available.begin(), nextIt, preferred.front());
         }
     }

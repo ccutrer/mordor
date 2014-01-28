@@ -147,7 +147,7 @@ private:
     friend class ServerRequest;
 public:
     ServerConnection(std::shared_ptr<Stream> stream,
-        boost::function<void (ServerRequest::ptr)> dg);
+        std::function<void (ServerRequest::ptr)> dg);
 
     /// Does not block; simply schedules a new fiber to read the first request
     void processRequests();
@@ -161,7 +161,7 @@ private:
     void scheduleAllWaitingResponses();
 
 private:
-    boost::function<void (ServerRequest::ptr)> m_dg;
+    std::function<void (ServerRequest::ptr)> m_dg;
     boost::mutex m_mutex;
     std::list<ServerRequest *> m_pendingRequests;
     std::set<ServerRequest *> m_waitingResponses;

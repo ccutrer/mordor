@@ -2,8 +2,6 @@
 
 #ifdef WINDOWS
 
-#include <boost/bind.hpp>
-
 #include "mordor/iomanager.h"
 #include "mordor/test/test.h"
 
@@ -35,9 +33,9 @@ MORDOR_UNITTEST(IOManager, eventPreventsStop)
     bool fired = false;
     try {
         IOManager ioManager;
-        ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-            boost::ref(fired)));
-        Thread thread(boost::bind(&signalEvent, hEvent, 500));
+        ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+            std::ref(fired)));
+        Thread thread(std::bind(&signalEvent, hEvent, 500));
     } catch (...) {
         CloseHandle(hEvent);
     }
@@ -59,9 +57,9 @@ MORDOR_UNITTEST(IOManager, waitBlockUnregisterAndFire)
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("CreateEventW");
     bool fired = false;
     IOManager ioManager;
-    ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-        boost::ref(fired)));
-    Thread thread(boost::bind(&signalEvent, hEvent, 0));
+    ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+        std::ref(fired)));
+    Thread thread(std::bind(&signalEvent, hEvent, 0));
     ioManager.unregisterEvent(hEvent);
     ioManager.dispatch();
     CloseHandle(hEvent);
@@ -76,8 +74,8 @@ MORDOR_UNITTEST(IOManager, waitBlockFireThenUnregister)
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("CreateEventW");
     bool fired = false;
     IOManager ioManager;
-    ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-        boost::ref(fired)));
+    ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+        std::ref(fired)));
     SetEvent(hEvent);
     while (!fired) Scheduler::yield();
     ioManager.unregisterEvent(hEvent);
@@ -96,10 +94,10 @@ MORDOR_UNITTEST(IOManager, waitBlockUnregisterOtherFires)
     }
     bool fired1 = false, fired2 = false;
     IOManager ioManager;
-    ioManager.registerEvent(hEvent1, boost::bind(&handleEvent,
-        boost::ref(fired1)));
-    ioManager.registerEvent(hEvent2, boost::bind(&handleEvent,
-        boost::ref(fired2)));
+    ioManager.registerEvent(hEvent1, std::bind(&handleEvent,
+        std::ref(fired1)));
+    ioManager.registerEvent(hEvent2, std::bind(&handleEvent,
+        std::ref(fired2)));
     ioManager.unregisterEvent(hEvent1);
     SetEvent(hEvent2);
     ioManager.dispatch();
@@ -127,12 +125,12 @@ MORDOR_UNITTEST(IOManager, waitBlockMultipleFire)
     }
     bool fired2 = false, fired3 = false;
     IOManager ioManager;
-    ioManager.registerEvent(hEvent1, boost::bind(&signalEvent,
+    ioManager.registerEvent(hEvent1, std::bind(&signalEvent,
         hEvent3, 0));
-    ioManager.registerEvent(hEvent2, boost::bind(&handleEvent,
-        boost::ref(fired2)));
-    ioManager.registerEvent(hEvent3, boost::bind(&unregisterEvent,
-        boost::ref(ioManager), hEvent2, boost::ref(fired3)));
+    ioManager.registerEvent(hEvent2, std::bind(&handleEvent,
+        std::ref(fired2)));
+    ioManager.registerEvent(hEvent3, std::bind(&unregisterEvent,
+        std::ref(ioManager), hEvent2, std::ref(fired3)));
     SetEvent(hEvent1);
     ioManager.dispatch();
     CloseHandle(hEvent1);
@@ -149,10 +147,10 @@ MORDOR_UNITTEST(IOManager, waitBlockDuplicate)
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("CreateEventW");
     bool fired1 = false, fired2 = false;
     IOManager ioManager;
-    ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-        boost::ref(fired1)));
-    ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-        boost::ref(fired2)));
+    ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+        std::ref(fired1)));
+    ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+        std::ref(fired2)));
     SetEvent(hEvent);
     ioManager.dispatch();
     MORDOR_ASSERT(fired1);
@@ -167,10 +165,10 @@ MORDOR_UNITTEST(IOManager, waitBlockDuplicateUnregister)
         MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("CreateEventW");
     bool fired1 = false, fired2 = false;
     IOManager ioManager;
-    ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-        boost::ref(fired1)));
-    ioManager.registerEvent(hEvent, boost::bind(&handleEvent,
-        boost::ref(fired2)));
+    ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+        std::ref(fired1)));
+    ioManager.registerEvent(hEvent, std::bind(&handleEvent,
+        std::ref(fired2)));
     MORDOR_TEST_ASSERT_EQUAL(ioManager.unregisterEvent(hEvent), 2u);
     ioManager.dispatch();
     MORDOR_ASSERT(!fired1);

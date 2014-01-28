@@ -2,8 +2,6 @@
 
 #include "hash.h"
 
-#include <boost/bind.hpp>
-
 #include "buffer.h"
 #include "mordor/assert.h"
 #include "mordor/endian.h"
@@ -15,7 +13,7 @@ HashStream::read(Buffer &buffer, size_t length)
 {
     Buffer temp;
     size_t result = parent()->read(temp, length);
-    temp.visit(boost::bind(&HashStream::updateHash, this, _1, _2), result);
+    temp.visit(std::bind(&HashStream::updateHash, this, std::placeholders::_1, std::placeholders::_2), result);
     buffer.copyIn(temp);
     return result;
 }
@@ -32,7 +30,7 @@ size_t
 HashStream::write(const Buffer &buffer, size_t length)
 {
     size_t result = parent()->write(buffer, length);
-    buffer.visit(boost::bind(&HashStream::updateHash, this, _1, _2), result);
+    buffer.visit(std::bind(&HashStream::updateHash, this, std::placeholders::_1, std::placeholders::_2), result);
     return result;
 }
 

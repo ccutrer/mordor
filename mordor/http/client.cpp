@@ -4,8 +4,6 @@
 
 #include <algorithm>
 
-#include <boost/bind.hpp>
-
 #include "broker.h"
 #include "chunked.h"
 #include "mordor/assert.h"
@@ -117,7 +115,7 @@ ClientConnection::writeTimeout(unsigned long long us)
 }
 
 void
-ClientConnection::idleTimeout(unsigned long long us, boost::function<void ()> dg)
+ClientConnection::idleTimeout(unsigned long long us, std::function<void ()> dg)
 {
     MORDOR_ASSERT(us == ~0ull || m_timerManager);
     boost::mutex::scoped_lock lock(m_mutex);
@@ -551,8 +549,8 @@ ClientRequest::requestStream()
     MORDOR_ASSERT(m_requestState == BODY);
     return m_requestStream = m_conn->getStream(m_request.general, m_request.entity,
         m_request.requestLine.method, INVALID,
-        boost::bind(&ClientRequest::requestDone, this),
-        boost::bind(&ClientRequest::requestFailed, this), false);
+        std::bind(&ClientRequest::requestDone, this),
+        std::bind(&ClientRequest::requestFailed, this), false);
 }
 
 Multipart::ptr
@@ -570,10 +568,10 @@ ClientRequest::requestMultipart()
     }
     m_requestStream = m_conn->getStream(m_request.general, m_request.entity,
         m_request.requestLine.method, INVALID,
-        boost::bind(&ClientRequest::requestDone, this),
-        boost::bind(&ClientRequest::requestFailed, this), false);
+        std::bind(&ClientRequest::requestDone, this),
+        std::bind(&ClientRequest::requestFailed, this), false);
     m_requestMultipart.reset(new Multipart(m_requestStream, it->second));
-    m_requestMultipart->multipartFinished = boost::bind(&ClientRequest::requestMultipartDone, shared_from_this());
+    m_requestMultipart->multipartFinished = std::bind(&ClientRequest::requestMultipartDone, shared_from_this());
     return m_requestMultipart;
 }
 
@@ -626,8 +624,8 @@ ClientRequest::responseStream()
     MORDOR_ASSERT(m_response.entity.contentType.type != "multipart");
     result = m_conn->getStream(m_response.general, m_response.entity,
         m_request.requestLine.method, m_response.status.status,
-        boost::bind(&ClientRequest::responseDone, shared_from_this()),
-        boost::bind(&ClientRequest::cancel, shared_from_this(), true, true), true);
+        std::bind((void (ClientRequest::*)())&ClientRequest::responseDone, shared_from_this()),
+        std::bind((void (ClientRequest::*)(bool, bool))&ClientRequest::cancel, shared_from_this(), true, true), true);
     m_hasResponseBody = true;
     m_responseStream = result;
     return result;
@@ -672,11 +670,11 @@ ClientRequest::responseMultipart()
     }
     Stream::ptr stream = m_conn->getStream(m_response.general, m_response.entity,
         m_request.requestLine.method, m_response.status.status,
-        NULL,
-        boost::bind(&ClientRequest::cancel, shared_from_this(), true, true), true);
+        nullptr,
+        std::bind((void (ClientRequest::*)(bool, bool))&ClientRequest::cancel, shared_from_this(), true, true), true);
     m_responseStream = stream;
     result.reset(new Multipart(stream, it->second));
-    result->multipartFinished = boost::bind(&ClientRequest::responseDone, shared_from_this());
+    result->multipartFinished = std::bind(&ClientRequest::responseDone, shared_from_this());
     m_responseMultipart = result;
     return result;
 }
@@ -719,9 +717,9 @@ ClientRequest::cancel(bool abort, bool error)
             NotifyStream::ptr notify =
                 std::dynamic_pointer_cast<NotifyStream>(m_requestStream);
             MORDOR_ASSERT(notify);
-            notify->notifyOnClose = NULL;
-            notify->notifyOnEof = NULL;
-            notify->notifyOnException = NULL;
+            notify->notifyOnClose = nullptr;
+            notify->notifyOnEof = nullptr;
+            notify->notifyOnException = nullptr;
             notify->parent(Stream::ptr(new Stream()));
         }
     }
@@ -733,9 +731,9 @@ ClientRequest::cancel(bool abort, bool error)
         NotifyStream::ptr notify =
             std::dynamic_pointer_cast<NotifyStream>(responseStream);
         MORDOR_ASSERT(notify);
-        notify->notifyOnClose = NULL;
-        notify->notifyOnEof = NULL;
-        notify->notifyOnException = NULL;
+        notify->notifyOnClose = nullptr;
+        notify->notifyOnEof = nullptr;
+        notify->notifyOnException = nullptr;
     }
     bool close = false, waiting = m_responseState == WAITING;
     if (m_responseState != HEADERS)
@@ -1208,9 +1206,9 @@ ClientRequest::requestDone()
     NotifyStream::ptr notify =
         std::dynamic_pointer_cast<NotifyStream>(m_requestStream);
     MORDOR_ASSERT(notify);
-    notify->notifyOnClose = NULL;
-    notify->notifyOnEof = NULL;
-    notify->notifyOnException = NULL;
+    notify->notifyOnClose = nullptr;
+    notify->notifyOnEof = nullptr;
+    notify->notifyOnException = nullptr;
     if (m_requestStream->supportsSize() && m_requestStream->supportsTell())
         MORDOR_ASSERT(m_requestStream->size() == m_requestStream->tell());
     if (!m_request.general.transferEncoding.empty()) {
@@ -1235,9 +1233,9 @@ ClientRequest::requestFailed()
         NotifyStream::ptr notify =
             std::dynamic_pointer_cast<NotifyStream>(m_requestStream);
         MORDOR_ASSERT(notify);
-        notify->notifyOnClose = NULL;
-        notify->notifyOnEof = NULL;
-        notify->notifyOnException = NULL;
+        notify->notifyOnClose = nullptr;
+        notify->notifyOnEof = nullptr;
+        notify->notifyOnException = nullptr;
     }
     boost::mutex::scoped_lock lock(m_conn->m_mutex);
     m_conn->invariant();
@@ -1309,9 +1307,9 @@ ClientRequest::responseDone()
     NotifyStream::ptr notify =
         std::dynamic_pointer_cast<NotifyStream>(stream);
     MORDOR_ASSERT(notify);
-    notify->notifyOnClose = NULL;
-    notify->notifyOnEof = NULL;
-    notify->notifyOnException = NULL;
+    notify->notifyOnClose = nullptr;
+    notify->notifyOnEof = nullptr;
+    notify->notifyOnException = nullptr;
     // Make sure every stream in the stack gets a proper EOF
     FilterStream::ptr filter =
         std::dynamic_pointer_cast<FilterStream>(notify->parent());
@@ -1364,8 +1362,8 @@ request(RequestBroker::ptr broker, Request &requestHeaders,
     // Allow pre-setting transferEncodings to override and force compression
     if (requestHeaders.general.transferEncoding.empty())
         requestHeaders.entity.contentLength = body.size();
-    return broker->request(requestHeaders, false, boost::bind(&doBodyString,
-        _1, body));
+    return broker->request(requestHeaders, false, std::bind(&doBodyString,
+        std::placeholders::_1, body));
 }
 
 ClientRequest::ptr
@@ -1375,8 +1373,8 @@ request(RequestBroker::ptr broker, Request &requestHeaders,
     // Allow pre-setting transferEncodings to override and force compression
     if (requestHeaders.general.transferEncoding.empty())
         requestHeaders.entity.contentLength = body.readAvailable();
-    return broker->request(requestHeaders, false, boost::bind(&doBodyBuffer,
-        _1, body));
+    return broker->request(requestHeaders, false, std::bind(&doBodyBuffer,
+        std::placeholders::_1, body));
 }
 
 ClientRequest::ptr

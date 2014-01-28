@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/fiber.h"
 #include "mordor/test/test.h"
 
@@ -36,8 +34,8 @@ MORDOR_UNITTEST(Fibers, call)
 {
     int sequence = 0;
     Fiber::ptr mainFiber = Fiber::getThis();
-    Fiber::ptr a(new Fiber(NULL));
-    a->reset(boost::bind(&fiberProc1, mainFiber, Fiber::weak_ptr(a), boost::ref(sequence)));
+    Fiber::ptr a(new Fiber(nullptr));
+    a->reset(std::bind(&fiberProc1, mainFiber, Fiber::weak_ptr(a), std::ref(sequence)));
     MORDOR_TEST_ASSERT(Fiber::getThis() == mainFiber);
     MORDOR_TEST_ASSERT(a != mainFiber);
     MORDOR_TEST_ASSERT(mainFiber->state() == Fiber::EXEC);
@@ -93,12 +91,12 @@ MORDOR_UNITTEST(Fibers, nestedCall)
 {
     int sequence = 0;
     Fiber::ptr mainFiber = Fiber::getThis();
-    Fiber::ptr a(new Fiber(NULL));
-    Fiber::ptr b(new Fiber(NULL));
-    a->reset(boost::bind(&fiberProc2a, mainFiber, Fiber::weak_ptr(a),
-        Fiber::weak_ptr(b), boost::ref(sequence)));
-    b->reset(boost::bind(&fiberProc2b, mainFiber, Fiber::weak_ptr(b),
-        Fiber::weak_ptr(a), boost::ref(sequence)));
+    Fiber::ptr a(new Fiber(nullptr));
+    Fiber::ptr b(new Fiber(nullptr));
+    a->reset(std::bind(&fiberProc2a, mainFiber, Fiber::weak_ptr(a),
+        Fiber::weak_ptr(b), std::ref(sequence)));
+    b->reset(std::bind(&fiberProc2b, mainFiber, Fiber::weak_ptr(b),
+        Fiber::weak_ptr(a), std::ref(sequence)));
     MORDOR_TEST_ASSERT(Fiber::getThis() == mainFiber);
     MORDOR_TEST_ASSERT(a != mainFiber);
     MORDOR_TEST_ASSERT(b != mainFiber);
@@ -222,22 +220,22 @@ MORDOR_UNITTEST(Fibers, yieldTo)
 {
     int sequence = 0;
     Fiber::ptr mainFiber = Fiber::getThis();
-    Fiber::ptr a(new Fiber(NULL));
-    Fiber::ptr b(new Fiber(NULL));
-    Fiber::ptr c(new Fiber(NULL));
-    Fiber::ptr d(new Fiber(NULL));
-    a->reset(boost::bind(&fiberProc3a, mainFiber, Fiber::weak_ptr(a),
+    Fiber::ptr a(new Fiber(nullptr));
+	Fiber::ptr b(new Fiber(nullptr));
+	Fiber::ptr c(new Fiber(nullptr));
+	Fiber::ptr d(new Fiber(nullptr));
+    a->reset(std::bind(&fiberProc3a, mainFiber, Fiber::weak_ptr(a),
         Fiber::weak_ptr(b), Fiber::weak_ptr(c),
-        Fiber::weak_ptr(d), boost::ref(sequence)));
-    b->reset(boost::bind(&fiberProc3b, mainFiber, Fiber::weak_ptr(a),
+        Fiber::weak_ptr(d), std::ref(sequence)));
+    b->reset(std::bind(&fiberProc3b, mainFiber, Fiber::weak_ptr(a),
         Fiber::weak_ptr(b), Fiber::weak_ptr(c),
-        Fiber::weak_ptr(d), boost::ref(sequence)));
-    c->reset(boost::bind(&fiberProc3c, mainFiber, Fiber::weak_ptr(a),
+        Fiber::weak_ptr(d), std::ref(sequence)));
+    c->reset(std::bind(&fiberProc3c, mainFiber, Fiber::weak_ptr(a),
         Fiber::weak_ptr(b), Fiber::weak_ptr(c),
-        Fiber::weak_ptr(d), boost::ref(sequence)));
-    d->reset(boost::bind(&fiberProc3d, mainFiber, Fiber::weak_ptr(a),
+        Fiber::weak_ptr(d), std::ref(sequence)));
+    d->reset(std::bind(&fiberProc3d, mainFiber, Fiber::weak_ptr(a),
         Fiber::weak_ptr(b), Fiber::weak_ptr(c),
-        Fiber::weak_ptr(d), boost::ref(sequence)));
+        Fiber::weak_ptr(d), std::ref(sequence)));
     MORDOR_TEST_ASSERT(Fiber::getThis() == mainFiber);
     MORDOR_TEST_ASSERT(a != mainFiber);
     MORDOR_TEST_ASSERT(b != mainFiber);
@@ -289,8 +287,8 @@ MORDOR_UNITTEST(Fibers, yieldBackThenCall)
 {
     int sequence = 0;
     Fiber::ptr mainFiber = Fiber::getThis();
-    Fiber::ptr a(new Fiber(NULL));
-    a->reset(boost::bind(&fiberProcYieldBack, boost::ref(sequence),
+	Fiber::ptr a(new Fiber(nullptr));
+    a->reset(std::bind(&fiberProcYieldBack, std::ref(sequence),
         mainFiber, Fiber::weak_ptr(a)));
     MORDOR_TEST_ASSERT(Fiber::getThis() == mainFiber);
     MORDOR_TEST_ASSERT(mainFiber != a);
@@ -327,9 +325,9 @@ MORDOR_UNITTEST(Fibers, reset)
 {
     int sequence = 0;
     Fiber::ptr mainFiber = Fiber::getThis();
-    Fiber::ptr a(new Fiber(NULL));
-    a->reset(boost::bind(&fiberProc4, mainFiber, Fiber::weak_ptr(a),
-        boost::ref(sequence), false));
+	Fiber::ptr a(new Fiber(nullptr));
+    a->reset(std::bind(&fiberProc4, mainFiber, Fiber::weak_ptr(a),
+        std::ref(sequence), false));
     MORDOR_TEST_ASSERT(Fiber::getThis() == mainFiber);
     MORDOR_TEST_ASSERT(a != mainFiber);
     MORDOR_TEST_ASSERT(mainFiber->state() == Fiber::EXEC);
@@ -356,8 +354,8 @@ MORDOR_UNITTEST(Fibers, reset)
     MORDOR_TEST_ASSERT(Fiber::getThis() == mainFiber);
     MORDOR_TEST_ASSERT(mainFiber->state() == Fiber::EXEC);
     MORDOR_TEST_ASSERT(a->state() == Fiber::TERM);
-    a->reset(boost::bind(&fiberProc4, mainFiber, Fiber::weak_ptr(a),
-        boost::ref(sequence), true));
+    a->reset(std::bind(&fiberProc4, mainFiber, Fiber::weak_ptr(a),
+        std::ref(sequence), true));
     MORDOR_TEST_ASSERT(a->state() == Fiber::INIT);
     MORDOR_TEST_ASSERT_EXCEPTION(a->call(), DummyException);
     ++sequence;
@@ -500,7 +498,7 @@ static void catchAndThrowDummyYieldTo(Fiber::ptr caller)
 MORDOR_UNITTEST(Fibers, forceThrowExceptionFiberYieldTo)
 {
     Fiber::ptr mainFiber = Fiber::getThis();
-    Fiber::ptr f(new Fiber(boost::bind(&catchAndThrowDummyYieldTo,
+    Fiber::ptr f(new Fiber(std::bind(&catchAndThrowDummyYieldTo,
         mainFiber)));
     boost::exception_ptr exception;
     try {
@@ -510,7 +508,7 @@ MORDOR_UNITTEST(Fibers, forceThrowExceptionFiberYieldTo)
     }
     f->yieldTo();
     MORDOR_TEST_ASSERT_EXCEPTION(f->inject(exception), DummyException);
-    f->reset(NULL);
+    f->reset(nullptr);
 }
 
 static void eatSomeStack()
@@ -536,7 +534,7 @@ static void gimmeYourFiber(Fiber::ptr &threadFiber)
 MORDOR_UNITTEST(Fibers, threadFiberHeldAfterThreadEnd)
 {
     Fiber::ptr threadFiber;
-    Thread thread(boost::bind(&gimmeYourFiber, boost::ref(threadFiber)));
+    Thread thread(std::bind(&gimmeYourFiber, std::ref(threadFiber)));
     thread.join();
 }
 
@@ -586,9 +584,9 @@ MORDOR_UNITTEST(Fibers, exceptionDestructsBeforeFiberDestructs)
     int sequence = 0;
     {
         Fiber::ptr mainFiber = Fiber::getThis();
-        Fiber::ptr throwingFiber(new Fiber(boost::bind(
+        Fiber::ptr throwingFiber(new Fiber(std::bind(
             &exceptionDestructsBeforeFiberDestructs, mainFiber,
-            boost::ref(sequence))));
+            std::ref(sequence))));
 
         MORDOR_TEST_ASSERT_EQUAL(++sequence, 1);
         try {

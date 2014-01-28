@@ -824,7 +824,7 @@ Buffer::getDelimited(const std::string &delimiter, bool eofIsDelimiter,
 }
 
 void
-Buffer::visit(boost::function<void (const void *, size_t)> dg, size_t length) const
+Buffer::visit(std::function<void (const void *, size_t)> dg, size_t length) const
 {
     if (length == (size_t)~0)
         length = readAvailable();

@@ -21,10 +21,10 @@ public:
 
 public:
     HTTPStream(const URI &uri, HTTP::RequestBroker::ptr requestBroker,
-        boost::function<bool (size_t)> delayDg = NULL);
+        std::function<bool (size_t)> delayDg = nullptr);
     HTTPStream(const HTTP::Request &requestHeaders,
         HTTP::RequestBroker::ptr requestBroker,
-        boost::function<bool (size_t)> delayDg = NULL);
+        std::function<bool (size_t)> delayDg = nullptr);
     ~HTTPStream();
 
     void sharedRetryCounter(size_t *retries) { mp_retries = retries; }
@@ -102,7 +102,7 @@ private:
     long long m_pos, m_size, m_sizeAdvice;
     unsigned long long m_readAdvice, m_writeAdvice,
         m_readRequested, m_writeRequested;
-    boost::function<bool (size_t)> m_delayDg;
+    std::function<bool (size_t)> m_delayDg;
     size_t *mp_retries;
     bool m_writeInProgress, m_abortWrite;
     Future<> m_writeFuture, m_writeFuture2;

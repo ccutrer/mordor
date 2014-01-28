@@ -316,7 +316,7 @@ MORDOR_UNITTEST(BufferedStream, errorOnWrite)
     MORDOR_TEST_ASSERT_EQUAL(baseStream->size(), 3);
     MORDOR_TEST_ASSERT_EQUAL(bufferedStream->size(), 10);
 
-    testStream->onWrite(NULL);
+    testStream->onWrite(nullptr);
     bufferedStream->flush();
     MORDOR_TEST_ASSERT_EQUAL(baseStream->size(), 10);
     MORDOR_TEST_ASSERT_EQUAL(bufferedStream->size(), 10);
@@ -539,10 +539,10 @@ MORDOR_UNITTEST(BufferedStream, flushFullDuplexStream)
     pipes.first.reset(new BufferedStream(pipes.first));
     pipes.second.reset(new BufferedStream(pipes.second));
 
-    pool.schedule(boost::bind(&readALot, pipes.first));
-    pool.schedule(boost::bind(&writeALot, pipes.first));
-    pool.schedule(boost::bind(&readALot, pipes.second));
-    pool.schedule(boost::bind(&writeALot, pipes.second));
+    pool.schedule(std::bind(&readALot, pipes.first));
+    pool.schedule(std::bind(&writeALot, pipes.first));
+    pool.schedule(std::bind(&readALot, pipes.second));
+    pool.schedule(std::bind(&writeALot, pipes.second));
     pool.stop();
 }
 
@@ -572,8 +572,8 @@ namespace
     void parallelReadWrite(Stream::ptr stream)
     {
         size_t totalSize = 16 * 1024 * 1024ull; // 16MB
-        std::shared_ptr<Thread> writeThread(new Thread(boost::bind(doWrite, stream, totalSize)));
-        std::shared_ptr<Thread> readThread(new Thread(boost::bind(doRead, stream, totalSize)));
+        std::shared_ptr<Thread> writeThread(new Thread(std::bind(doWrite, stream, totalSize)));
+        std::shared_ptr<Thread> readThread(new Thread(std::bind(doRead, stream, totalSize)));
         writeThread->join();
         readThread->join();
     }

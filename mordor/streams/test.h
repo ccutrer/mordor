@@ -2,8 +2,6 @@
 #define __MORDOR_TEST_STREAM_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/function.hpp>
-
 #include "filter.h"
 
 namespace Mordor {
@@ -29,13 +27,13 @@ public:
     size_t maxWriteSize() const { return m_maxWriteSize; }
     void maxWriteSize(size_t max) { m_maxWriteSize = max; }
 
-    void onClose(boost::function<void (CloseType)> dg)
+    void onClose(std::function<void (CloseType)> dg)
     { m_onClose = dg; }
-    void onRead(boost::function<void ()> dg, long long bytes = 0)
+    void onRead(std::function<void ()> dg, long long bytes = 0)
     { m_onRead = dg; m_onReadBytes = bytes; }
-    void onWrite(boost::function<void ()> dg, long long bytes = 0)
+    void onWrite(std::function<void ()> dg, long long bytes = 0)
     { m_onWrite = dg; m_onWriteBytes = bytes; }
-    void onFlush(boost::function<void (bool)> dg)
+    void onFlush(std::function<void (bool)> dg)
     { m_onFlush = dg; }
 
     void close(CloseType type = BOTH);
@@ -47,9 +45,9 @@ public:
 
 private:
     size_t m_maxReadSize, m_maxWriteSize;
-    boost::function<void (CloseType)> m_onClose;
-    boost::function<void ()> m_onRead, m_onWrite;
-    boost::function<void (bool)> m_onFlush;
+    std::function<void (CloseType)> m_onClose;
+    std::function<void ()> m_onRead, m_onWrite;
+    std::function<void (bool)> m_onFlush;
     long long m_onReadBytes, m_onWriteBytes;
 };
 

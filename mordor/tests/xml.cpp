@@ -1,7 +1,5 @@
 // Copyright (c) 2010 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/xml/dom_parser.h"
 #include "mordor/test/test.h"
 #include "mordor/string.h"
@@ -65,8 +63,8 @@ MORDOR_UNITTEST(XMLParser, basic)
     std::string start, end;
     int calledStart = 0, calledEnd = 0;
     CallbackXMLParserEventHandler handler(
-        boost::bind(&callback, boost::ref(start), boost::ref(calledStart), _1),
-        boost::bind(&callback, boost::ref(end), boost::ref(calledEnd), _1));
+		std::bind(&callback, std::ref(start), std::ref(calledStart), std::placeholders::_1),
+		std::bind(&callback, std::ref(end), std::ref(calledEnd), std::placeholders::_1));
     XMLParser parser(handler);
     parser.run("<body></body>");
     MORDOR_ASSERT(parser.final());
@@ -82,9 +80,9 @@ MORDOR_UNITTEST(XMLParser, emptyTag)
     std::string tag;
     int calledStart = 0, calledEmpty = 0;
     CallbackXMLParserEventHandler handler(
-        boost::bind(&callback, boost::ref(tag), boost::ref(calledStart), _1),
-        NULL,
-        boost::bind(&emptyTag, boost::ref(calledEmpty)));
+		std::bind(&callback, std::ref(tag), std::ref(calledStart), std::placeholders::_1),
+        nullptr,
+        std::bind(&emptyTag, std::ref(calledEmpty)));
     XMLParser parser(handler);
     parser.run("<empty />");
     MORDOR_ASSERT(parser.final());
@@ -98,13 +96,13 @@ MORDOR_UNITTEST(XMLParser, references)
 {
     std::string text;
     int called = 0;
-    CallbackXMLParserEventHandler handler(NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        boost::bind(&callback, boost::ref(text), boost::ref(called), _1),
-        boost::bind(&reference, boost::ref(text), boost::ref(called), _1));
+    CallbackXMLParserEventHandler handler(nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+		std::bind(&callback, std::ref(text), std::ref(called), std::placeholders::_1),
+		std::bind(&reference, std::ref(text), std::ref(called), std::placeholders::_1));
     XMLParser parser(handler);
     parser.run("<root>sometext&amp;somemoretext</root>");
     MORDOR_ASSERT(parser.final());
@@ -134,11 +132,11 @@ MORDOR_UNITTEST(XMLParser, attribute)
     std::string key, value;
     int calledKey = 0, calledVal = 0;
     CallbackXMLParserEventHandler handler(
-        NULL,
-        NULL,
-        NULL,
-        boost::bind(&callback, boost::ref(key), boost::ref(calledKey), _1),
-        boost::bind(&handlereferencecallback, boost::ref(value), boost::ref(calledVal), _1));
+        nullptr,
+        nullptr,
+        nullptr,
+		std::bind(&callback, std::ref(key), std::ref(calledKey), std::placeholders::_1),
+		std::bind(&handlereferencecallback, std::ref(value), std::ref(calledVal), std::placeholders::_1));
     XMLParser parser(handler);
 
     parser.run("<mykey query=\"mymail\"/>");

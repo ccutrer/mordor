@@ -11,7 +11,6 @@
 #include <syslog.h>
 #endif
 
-#include <boost/bind.hpp>
 #include <boost/regex.hpp>
 
 #include "assert.h"
@@ -131,10 +130,10 @@ static void enableLoggers()
     boost::regex verboseRegex = buildLogRegex(g_logVerbose->val(), "");
     boost::regex debugRegex = buildLogRegex(g_logDebug->val(), "");
     boost::regex traceRegex = buildLogRegex(g_logTrace->val(), "");
-    Log::visit(boost::bind(&enableLogger, _1,
-        boost::cref(errorRegex), boost::cref(warnRegex),
-        boost::cref(infoRegex), boost::cref(verboseRegex),
-        boost::cref(debugRegex), boost::cref(traceRegex)));
+    Log::visit(std::bind(&enableLogger, std::placeholders::_1,
+        std::cref(errorRegex), std::cref(warnRegex),
+        std::cref(infoRegex), std::cref(verboseRegex),
+        std::cref(debugRegex), std::cref(traceRegex)));
 }
 
 static void enableStdoutLogging()
@@ -374,7 +373,7 @@ Logger::ptr Log::lookup(const std::string &name)
 }
 
 void
-Log::visit(boost::function<void (std::shared_ptr<Logger>)> dg)
+Log::visit(std::function<void (std::shared_ptr<Logger>)> dg)
 {
     std::list<Logger::ptr> toVisit;
     toVisit.push_back(root());

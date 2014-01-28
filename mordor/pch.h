@@ -82,6 +82,7 @@
 // C++ Headers
 #include <algorithm>
 #include <bitset>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <list>
@@ -96,16 +97,12 @@
 #include <vector>
 
 // Non-STL C++ headers
-#if !defined(GCC) || defined(__clang__)
-#include <boost/bind.hpp>
-#endif
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_array.hpp>
 #include <boost/blank.hpp>
 #include <boost/date_time.hpp>
 #include <boost/exception/all.hpp>
-#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>

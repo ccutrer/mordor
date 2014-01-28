@@ -35,13 +35,13 @@ private:
             EventContext() : scheduler(NULL) {}
             Scheduler *scheduler;
             std::shared_ptr<Fiber> fiber;
-            boost::function<void ()> dg;
+            std::function<void ()> dg;
         };
 
         EventContext &contextForEvent(Event event);
         bool triggerEvent(Event event, size_t *pendingEventCount = NULL,
             std::shared_ptr<Fiber> *fiber = NULL,
-            boost::function<void ()> *dg = NULL);
+            std::function<void ()> *dg = nullptr);
 
         int m_fd;
         EventContext m_in, m_out, m_close;
@@ -56,7 +56,7 @@ public:
     bool stopping();
 
     void registerEvent(int fd, Event events,
-        boost::function<void ()> dg = NULL);
+        std::function<void ()> dg = nullptr);
     /// Will not cause the event to fire
     /// @return If the event was successfully unregistered before firing normally
     bool unregisterEvent(int fd, Event events);

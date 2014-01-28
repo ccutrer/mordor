@@ -2,8 +2,6 @@
 #define __MORDOR_PROGRESS_STREAM_H__
 // Copyright (c) 2010 - Mozy, Inc.
 
-#include <boost/function.hpp>
-
 #include "filter.h"
 
 namespace Mordor {
@@ -12,7 +10,7 @@ class ProgressStream : public FilterStream
 {
 public:
     typedef std::shared_ptr<ProgressStream> ptr;
-    typedef boost::function<void (size_t)> progress_callback;
+    typedef std::function<void (size_t)> progress_callback;
 
 private:
     progress_callback m_readDg, m_writeDg;

@@ -17,6 +17,8 @@
 
 namespace Mordor {
 
+inline void nop() {}
+
 template <class T>
 void nop(const T &) {}
 

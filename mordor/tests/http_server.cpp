@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/fiber.h"
 #include "mordor/http/broker.h"
 #include "mordor/http/client.h"
@@ -81,7 +79,7 @@ doSingleRequest(const char *request, Response &response)
     Stream::ptr stream(new DuplexStream(input, output));
     ServerConnection::ptr conn(new ServerConnection(stream, &httpRequest));
     WorkerPool pool;
-    pool.schedule(boost::bind(&ServerConnection::processRequests, conn));
+    pool.schedule(std::bind(&ServerConnection::processRequests, conn));
     pool.dispatch();
     ResponseParser parser(response);
     parser.run(output->buffer());
@@ -302,7 +300,7 @@ MORDOR_UNITTEST(HTTPServer, pipelineResponseException)
 static void respondToTwo(TestStream::ptr testOutput, Fiber::ptr &fiber,
     int &sequence)
 {
-    testOutput->onWrite(NULL);
+    testOutput->onWrite(nullptr);
     while (!fiber)
         Scheduler::yield();
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 3);
@@ -342,14 +340,14 @@ MORDOR_UNITTEST(HTTPServer, pipelineResponseWhilePriorResponseFlushing)
         "\r\n")));
     MemoryStream::ptr output(new MemoryStream());
     TestStream::ptr testOutput(new TestStream(output));
-    testOutput->onWrite(boost::bind(&respondToTwo, testOutput,
-        boost::ref(fiber2), boost::ref(sequence)), 0);
+    testOutput->onWrite(std::bind(&respondToTwo, testOutput,
+        std::ref(fiber2), std::ref(sequence)), 0);
     Stream::ptr stream(new DuplexStream(input, testOutput));
     ServerConnection::ptr conn(new ServerConnection(stream,
-        boost::bind(&yieldTwoServer, _1, boost::ref(fiber2),
-        boost::ref(sequence))));
+        std::bind(&yieldTwoServer, std::placeholders::_1, std::ref(fiber2),
+        std::ref(sequence))));
     WorkerPool pool;
-    pool.schedule(boost::bind(&ServerConnection::processRequests, conn));
+    pool.schedule(std::bind(&ServerConnection::processRequests, conn));
     pool.dispatch();
 }
 

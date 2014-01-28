@@ -37,9 +37,9 @@ public:
     void run(std::string& host,
              size_t perConnToRead,
              size_t perConnToWrite,
-             boost::function<void()> done)
+             std::function<void()> done)
     {
-        m_iom.schedule(boost::bind(&IOMBenchServer::server, this, host,
+        m_iom.schedule(std::bind(&IOMBenchServer::server, this, host,
                                    perConnToRead, perConnToWrite));
         done();
     }
@@ -73,7 +73,7 @@ private:
             } catch (Exception&) {
                 return;
             }
-            m_iom.schedule(boost::bind(&IOMBenchServer::handleConn,
+            m_iom.schedule(std::bind(&IOMBenchServer::handleConn,
                                                this,
                                                conn,
                                                perConnToRead,
@@ -123,7 +123,7 @@ public:
     { }
 
     void init(std::string& host, size_t perConnToRead, size_t perConnToWrite,
-              boost::function<void()> done)
+              std::function<void()> done)
     {
         m_perConnToRead = perConnToRead;
         m_perConnToWrite = perConnToWrite;
@@ -145,7 +145,7 @@ public:
     void prepClientsForNextRound(size_t newClients,
                                  size_t newActive,
                                  size_t iters,
-                                 boost::function<void()> done)
+                                 std::function<void()> done)
     {
         m_iters = iters;
         m_newClients = 0;
@@ -158,7 +158,7 @@ public:
             << "iters " << iters;
 
         for (size_t i = 0; i < newClients; i++) {
-            m_iom.schedule(boost::bind(&IOMBenchClient::client,
+            m_iom.schedule(std::bind(&IOMBenchClient::client,
                                                this, newActive > 0));
             if (newActive) {
                 newActive--;
@@ -179,7 +179,7 @@ public:
     // implementers are encouraged to actually tally numOps in the done
     // callback so that we can check to make sure that we did the work
     // that we expected to
-    void startRound(boost::function<void(size_t numOps)> done)
+    void startRound(std::function<void(size_t numOps)> done)
     {
         m_clientsDone = 0;
         m_opsDone = 0;

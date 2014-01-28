@@ -1,7 +1,8 @@
 #ifndef NET_BENCH_SERVER_H__
 #define NET_BENCH_SERVER_H__
 
-#include <boost/function.hpp>
+#include <functional>
+
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 class NetBenchServer
@@ -13,7 +14,7 @@ public:
     virtual void run(std::string& host,
                      size_t perConnToRead,
                      size_t perConnToWrite,
-                     boost::function<void()> done) = 0;
+                     std::function<void()> done) = 0;
 
     // called when the test is over prior to destructor
     virtual void stop() = 0;
@@ -27,7 +28,7 @@ public:
     // initialize the client to be benchmarked
     virtual void init(std::string& host,
                       size_t perConnToRead, size_t perConnToWrite,
-                      boost::function<void()> done) = 0;
+                      std::function<void()> done) = 0;
 
     // connect the requested number of clients and make some active.
     // each active client should run iters worth of iterations of
@@ -35,12 +36,12 @@ public:
     virtual void prepClientsForNextRound(size_t newClients,
                                          size_t newActive,
                                          size_t iters,
-                                         boost::function<void()> done) = 0;
+                                         std::function<void()> done) = 0;
 
     // implementers are encouraged to actually tally numOps in the done
     // callback so that we can check to make sure that we did the work
     // that we expected to
-    virtual void startRound(boost::function<void(size_t numOps)> done) = 0;
+    virtual void startRound(std::function<void(size_t numOps)> done) = 0;
 
     // called when the test is over prior to destructor
     virtual void stop() = 0;

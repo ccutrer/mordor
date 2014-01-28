@@ -33,7 +33,7 @@ private:
 
         Scheduler *m_scheduler, *m_schedulerClose;
         std::shared_ptr<Fiber> m_fiber, m_fiberClose;
-        boost::function<void ()> m_dg, m_dgClose;
+        std::function<void ()> m_dg, m_dgClose;
 
         bool operator<(const AsyncEvent &rhs) const
         { if (event.ident < rhs.event.ident) return true; return event.filter < rhs.event.filter; }
@@ -45,7 +45,7 @@ public:
 
     bool stopping();
 
-    void registerEvent(int fd, Event events, boost::function<void ()> dg = NULL);
+    void registerEvent(int fd, Event events, std::function<void ()> dg = nullptr);
     void cancelEvent(int fd, Event events);
     void unregisterEvent(int fd, Event events);
 

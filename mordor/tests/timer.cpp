@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/timer.h"
 #include "mordor/workerpool.h"
 #include "mordor/test/test.h"
@@ -21,7 +19,7 @@ MORDOR_UNITTEST(Timer, single)
     int sequence = 0;
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
-    manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence), 1));
+    manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence), 1));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0u);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     manager.executeTimers();
@@ -35,10 +33,10 @@ MORDOR_UNITTEST(Timer, multiple)
     int sequence = 0;
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
-    manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence),
-        boost::ref(sequence)));
-    manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence),
-        boost::ref(sequence)));
+    manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence),
+        std::ref(sequence)));
+    manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence),
+        std::ref(sequence)));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0u);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     manager.executeTimers();
@@ -53,7 +51,7 @@ MORDOR_UNITTEST(Timer, cancel)
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
     Timer::ptr timer =
-        manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence), 1));
+        manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence), 1));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0u);
     timer->cancel();
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
@@ -67,7 +65,7 @@ MORDOR_UNITTEST(Timer, idempotentCancel)
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
     Timer::ptr timer =
-        manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence), 1));
+        manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence), 1));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0u);
     timer->cancel();
     timer->cancel();
@@ -82,7 +80,7 @@ MORDOR_UNITTEST(Timer, idempotentCancelAfterSuccess)
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
     Timer::ptr timer =
-        manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence), 1));
+        manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence), 1));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0u);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     manager.executeTimers();
@@ -101,8 +99,8 @@ MORDOR_UNITTEST(Timer, recurring)
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
     Timer::ptr timer =
-        manager.registerTimer(0, boost::bind(&singleTimer, boost::ref(sequence),
-        boost::ref(expected)), true);
+        manager.registerTimer(0, std::bind(&singleTimer, std::ref(sequence),
+        std::ref(expected)), true);
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0u);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     expected = 1;
@@ -124,7 +122,7 @@ MORDOR_UNITTEST(Timer, later)
     TimerManager manager;
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), ~0ull);
     Timer::ptr timer = manager.registerTimer(1000 * 1000 * 1000,
-        boost::bind(&singleTimer, boost::ref(sequence), 1));
+        std::bind(&singleTimer, std::ref(sequence), 1));
     MORDOR_TEST_ASSERT_ABOUT_EQUAL(manager.nextTimer(),
         1000 * 1000 * 1000u, 100 * 1000 * 1000u);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
@@ -144,14 +142,14 @@ MORDOR_UNITTEST(Timer, rollover)
 {
     // two minutes before the apocalypse
     static unsigned long long clock = 0ULL - 120000000;
-    TimerManager::setClock(boost::bind(&fakeClock, boost::ref(clock)));
+    TimerManager::setClock(std::bind(&fakeClock, std::ref(clock)));
     
     int sequence = 0;
     TimerManager manager;
 
     // sanity check - test passage of time
     Timer::ptr timer1 = manager.registerTimer(60000000,
-        boost::bind(&singleTimer, boost::ref(sequence), boost::ref(sequence)));
+        std::bind(&singleTimer, std::ref(sequence), std::ref(sequence)));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 60000000ULL);
     clock += 30000000;
     manager.executeTimers();
@@ -160,10 +158,10 @@ MORDOR_UNITTEST(Timer, rollover)
     
     // now create a few more timers for good measure
     Timer::ptr timer2 = manager.registerTimer(15000000,     // pre-rollover
-        boost::bind(&singleTimer, boost::ref(sequence), boost::ref(sequence)));
+        std::bind(&singleTimer, std::ref(sequence), std::ref(sequence)));
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 15000000ULL);
     Timer::ptr timer3 = manager.registerTimer(180000000,    // post-rollover
-        boost::bind(&singleTimer, boost::ref(sequence), boost::ref(sequence)));
+        std::bind(&singleTimer, std::ref(sequence), std::ref(sequence)));
     // nextTimer() would return 0 now, because timer3 appears to be in the past
 
     clock += 120000000; // overflow!!
@@ -198,7 +196,7 @@ private:
 class TestTimerManager : public TimerManager
 {
 public:
-    std::vector<boost::function<void ()> > getExpiredTimers()
+    std::vector<std::function<void ()> > getExpiredTimers()
     {
         return processTimers();
     }
@@ -215,7 +213,7 @@ MORDOR_UNITTEST(Timer, timerConditonValid)
 
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     Timer::ptr timer = manager.registerConditionTimer(0,
-        boost::bind(&TestTimerClass::timedOut, tester.get(), 1),
+        std::bind(&TestTimerClass::timedOut, tester.get(), 1),
         tester);
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0ull);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
@@ -236,7 +234,7 @@ MORDOR_UNITTEST(Timer, timerConditonInvalid)
 
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     Timer::ptr timer = manager.registerConditionTimer(0,
-        boost::bind(&TestTimerClass::timedOut, tester.get(), 123456),
+        std::bind(&TestTimerClass::timedOut, tester.get(), 123456),
         tester);
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0ull);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
@@ -257,11 +255,11 @@ MORDOR_UNITTEST(Timer, workerPoolConditionValid)
 
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     Timer::ptr timer = manager.registerConditionTimer(0,
-        boost::bind(&TestTimerClass::timedOut, tester.get(), 1),
+        std::bind(&TestTimerClass::timedOut, tester.get(), 1),
         tester);
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0ull);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
-    std::vector<boost::function<void ()> > dgs = manager.getExpiredTimers();
+    std::vector<std::function<void ()> > dgs = manager.getExpiredTimers();
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     MORDOR_TEST_ASSERT_EQUAL(dgs.size(), 1u);
     MORDOR_TEST_ASSERT(dgs.begin() != dgs.end());
@@ -286,11 +284,11 @@ MORDOR_UNITTEST(Timer, workerPoolConditonInvalid)
 
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     Timer::ptr timer = manager.registerConditionTimer(0,
-        boost::bind(&TestTimerClass::timedOut, tester.get(), 123456),
+        std::bind(&TestTimerClass::timedOut, tester.get(), 123456),
         tester);
     MORDOR_TEST_ASSERT_EQUAL(manager.nextTimer(), 0ull);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
-    std::vector<boost::function<void ()> > dgs = manager.getExpiredTimers();
+    std::vector<std::function<void ()> > dgs = manager.getExpiredTimers();
     MORDOR_TEST_ASSERT_EQUAL(sequence, 0);
     MORDOR_TEST_ASSERT_EQUAL(dgs.size(), 1u);
     MORDOR_TEST_ASSERT(dgs.begin() != dgs.end());

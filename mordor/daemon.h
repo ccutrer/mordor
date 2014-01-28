@@ -2,10 +2,10 @@
 #define __MORDOR_SERVICE_H__
 // Copyright (c) 2010 - Mozy, Inc.
 
+#include <functional>
 #include <vector>
 #include <string>
 
-#include <boost/function.hpp>
 #include <boost/signals2/signal.hpp>
 
 #include "version.h"
@@ -58,7 +58,7 @@ namespace Daemon {
 ///       the thread daemonMain is called on, or any that it created
 /// @note run should be called *exactly* once, since the signals are global
 ///       for the process
-int run(int argc, char **argv, boost::function<int (int, char **)> daemonMain);
+int run(int argc, char **argv, std::function<int (int, char **)> daemonMain);
 
 extern boost::signals2::signal<void ()> onTerminate;
 extern boost::signals2::signal<void ()> onInterrupt;

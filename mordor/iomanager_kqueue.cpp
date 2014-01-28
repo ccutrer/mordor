@@ -72,7 +72,7 @@ IOManager::stopping()
 
 void
 IOManager::registerEvent(int fd, Event events,
-                               boost::function<void ()> dg)
+                               std::function<void ()> dg)
 {
     MORDOR_ASSERT(fd > 0);
     MORDOR_ASSERT(Scheduler::getThis());
@@ -135,7 +135,7 @@ IOManager::cancelEvent(int fd, Event events)
     MORDOR_ASSERT(e.event.ident == (unsigned)fd);
     Scheduler *scheduler;
     Fiber::ptr fiber;
-    boost::function<void ()> dg;
+    std::function<void ()> dg;
     if (events == READ) {
         scheduler = e.m_scheduler;
         fiber.swap(e.m_fiber);
@@ -198,12 +198,12 @@ IOManager::unregisterEvent(int fd, Event events)
     MORDOR_ASSERT(e.event.ident == (unsigned)fd);
     if (events == READ) {
         e.m_fiber.reset();
-        e.m_dg = NULL;
+        e.m_dg = nullptr;
         if (e.m_fiberClose || e.m_dgClose)
             return;
     } else if (events == CLOSE) {
         e.m_fiberClose.reset();
-        e.m_dgClose = NULL;
+        e.m_dgClose = nullptr;
         if (e.m_fiber || e.m_dg)
             return;
     }
@@ -257,7 +257,7 @@ IOManager::idle()
             << ")";
         if (rc < 0)
             MORDOR_THROW_EXCEPTION_FROM_LAST_ERROR_API("kevent");
-        std::vector<boost::function<void ()> > expired = processTimers();
+        std::vector<std::function<void ()> > expired = processTimers();
         schedule(expired.begin(), expired.end());
         expired.clear();
 
@@ -304,7 +304,7 @@ IOManager::idle()
             }
             if (e.m_dg) {
                 e.m_scheduler->schedule(e.m_dg);
-                e.m_dg = NULL;
+                e.m_dg = nullptr;
             } else if (e.m_fiber) {
                 e.m_scheduler->schedule(e.m_fiber);
                 e.m_fiber.reset();
@@ -312,7 +312,7 @@ IOManager::idle()
             if (eof && e.event.filter == EVFILT_READ) {
                 if (e.m_dgClose) {
                     e.m_schedulerClose->schedule(e.m_dgClose);
-                    e.m_dgClose = NULL;
+                    e.m_dgClose = nullptr;
                 } else if (e.m_fiberClose) {
                     e.m_schedulerClose->schedule(e.m_fiberClose);
                     e.m_fiberClose.reset();

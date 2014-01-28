@@ -68,7 +68,7 @@ static void SetThreadName( DWORD dwThreadID, LPCSTR szThreadName)
 #ifndef LINUX
 namespace {
 struct Context {
-    boost::function<void ()> dg;
+    std::function<void ()> dg;
     const char *name;
 };
 }
@@ -125,7 +125,7 @@ Thread::Bookmark::switchTo()
 //   started, so simply pass a pointer to this to the thread, which will
 //   set the tid in the object, copy the dg that is a member field onto the
 //   stack, signal the constructor that it's ready to go, and then call dg
-Thread::Thread(boost::function<void ()> dg, const char *name)
+Thread::Thread(std::function<void ()> dg, const char *name)
 {
 #ifdef LINUX
     m_dg = dg;
@@ -198,7 +198,7 @@ void *
 #endif
 Thread::run(void *arg)
 {
-   boost::function<void ()> dg;
+   std::function<void ()> dg;
 #ifdef LINUX
    Thread *self = (Thread *)arg;
     self->m_tid = gettid();

@@ -37,7 +37,7 @@ static void authorize(const ChallengeList *challenge, AuthParams &authorization,
 
 ClientRequest::ptr
 AuthRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-    boost::function<void (ClientRequest::ptr)> bodyDg)
+    std::function<void (ClientRequest::ptr)> bodyDg)
 {
     ClientRequest::ptr priorRequest;
     std::string scheme, realm, username, password;

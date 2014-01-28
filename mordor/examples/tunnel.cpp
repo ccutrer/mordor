@@ -34,8 +34,8 @@ static void shuttleData(Stream::ptr oneEnd, Stream::ptr otherEnd)
 static void connectThem(Stream::ptr oneEnd, Stream::ptr otherEnd)
 {
     Scheduler *scheduler = Scheduler::getThis();
-    scheduler->schedule(boost::bind(&shuttleData, oneEnd, otherEnd));
-    scheduler->schedule(boost::bind(&shuttleData, otherEnd, oneEnd));
+    scheduler->schedule(std::bind(&shuttleData, oneEnd, otherEnd));
+    scheduler->schedule(std::bind(&shuttleData, otherEnd, oneEnd));
 }
 
 static void outgoingConnection(Stream::ptr client, IOManager &ioManager,
@@ -115,8 +115,10 @@ static void outgoingProxyConnection(Stream::ptr client, IOManager &ioManager,
 
         HTTP::RequestBrokerOptions options;
         options.ioManager = &ioManager;
-        options.getProxyCredentialsDg = boost::bind(&getCredentials, _2, _3,
-            _5, _6, username, password, _7);
+        options.getProxyCredentialsDg = std::bind(&getCredentials,
+			std::placeholders::_2, std::placeholders::_3,
+			std::placeholders::_5, std::placeholders::_6, username, password,
+			std::placeholders::_7);
         HTTP::RequestBroker::ptr requestBroker = HTTP::createRequestBroker(options).first;
 
         Stream::ptr server = HTTP::tunnel(requestBroker, proxy, toConnectTo);
@@ -132,7 +134,7 @@ static void outgoingProxyConnection(Stream::ptr client, IOManager &ioManager,
 }
 
 static void socketServer(Socket::ptr s, IOManager &ioManager,
-                         boost::function<void (Stream::ptr)> outgoing)
+                         std::function<void (Stream::ptr)> outgoing)
 {
     s->listen(10);
 
@@ -140,7 +142,7 @@ static void socketServer(Socket::ptr s, IOManager &ioManager,
         while (true) {
             Socket::ptr newsocket = s->accept();
             Stream::ptr sockstream(new SocketStream(newsocket));
-            Scheduler::getThis()->schedule(boost::bind(outgoing, sockstream));
+            Scheduler::getThis()->schedule(std::bind(outgoing, sockstream));
         }
     } catch (std::exception &ex) {
         std::cerr << typeid(ex).name() << ": " << ex.what( ) << std::endl;
@@ -158,7 +160,7 @@ MORDOR_MAIN(int argc, char *argv[])
     }
     try {
         std::string from, to, username, password;
-        boost::function<void (Stream::ptr)> outgoing;
+        std::function<void (Stream::ptr)> outgoing;
         bool ssl = false;
         from = argv[1];
         to = argv[2];
@@ -173,12 +175,12 @@ MORDOR_MAIN(int argc, char *argv[])
         if (argc > 4)
             username = argv[4];
         if (argc > 3) {
-            outgoing = boost::bind(&outgoingProxyConnection, _1,
-                boost::ref(ioManager), argv[3], username, password, to,
+            outgoing = std::bind(&outgoingProxyConnection, std::placeholders::_1,
+                std::ref(ioManager), argv[3], username, password, to,
                 ssl);
         } else {
-            outgoing = boost::bind(&outgoingConnection, _1,
-                boost::ref(ioManager), to, ssl);
+			outgoing = std::bind(&outgoingConnection, std::placeholders::_1,
+                std::ref(ioManager), to, ssl);
         }
 
         if (to == "-") {
@@ -194,8 +196,8 @@ MORDOR_MAIN(int argc, char *argv[])
                 ++it) {
                 Socket::ptr s = (*it)->createSocket(ioManager, SOCK_STREAM);
                 s->bind(*it);
-                Scheduler::getThis()->schedule(boost::bind(&socketServer, s,
-                    boost::ref(ioManager), outgoing));
+                Scheduler::getThis()->schedule(std::bind(&socketServer, s,
+                    std::ref(ioManager), outgoing));
             }
             ioManager.yieldTo();
         }

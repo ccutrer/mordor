@@ -1,7 +1,5 @@
 // Copyright (c) 2013 - Cody Cutrer
 
-#include <boost/bind.hpp>
-
 #include "mordor/rate_limiter.h"
 #include "mordor/iomanager.h"
 #include "mordor/sleep.h"

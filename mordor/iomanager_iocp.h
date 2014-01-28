@@ -8,6 +8,7 @@
 
 #include "scheduler.h"
 #include "timer.h"
+#include "util.h"
 #include "version.h"
 
 #ifndef WINDOWS
@@ -41,7 +42,7 @@ private:
         WaitBlock(IOManager &outer);
         ~WaitBlock();
 
-        bool registerEvent(HANDLE handle, boost::function<void ()> dg,
+        bool registerEvent(HANDLE handle, std::function<void ()> dg,
             bool recurring);
         size_t unregisterEvent(HANDLE handle);
 
@@ -56,7 +57,7 @@ private:
         HANDLE m_handles[MAXIMUM_WAIT_OBJECTS];
         Scheduler *m_schedulers[MAXIMUM_WAIT_OBJECTS];
         std::shared_ptr<Fiber> m_fibers[MAXIMUM_WAIT_OBJECTS];
-        boost::function<void ()> m_dgs[MAXIMUM_WAIT_OBJECTS];
+        std::function<void ()> m_dgs[MAXIMUM_WAIT_OBJECTS];
         bool m_recurring[MAXIMUM_WAIT_OBJECTS];
         int m_inUseCount;
     };
@@ -71,10 +72,10 @@ public:
     void registerEvent(AsyncEvent *e);
     // Only use if the async call failed, not for cancelling it
     void unregisterEvent(AsyncEvent *e);
-    void registerEvent(HANDLE handle, boost::function<void ()> dg,
+    void registerEvent(HANDLE handle, std::function<void ()> dg,
         bool recurring = false);
     void registerEvent(HANDLE handle, bool recurring = false)
-    { registerEvent(handle, NULL, recurring); }
+    { registerEvent(handle, &nop, recurring); }
     size_t unregisterEvent(HANDLE handle);
     void cancelEvent(HANDLE hFile, AsyncEvent *e);
 

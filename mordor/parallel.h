@@ -2,11 +2,10 @@
 #define __MORDOR_PARALLEL_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
 #include <vector>
 
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/function.hpp>
 
 #include "atomic.h"
 #include "fiber.h"
@@ -32,13 +31,13 @@ namespace Mordor {
 /// @ingroup parallel_do
 /// @param dgs The functors to execute
 void
-parallel_do(const std::vector<boost::function<void ()> > &dgs);
+parallel_do(const std::vector<std::function<void ()> > &dgs);
 /// @ingroup parallel_do
 /// @param dgs The functors to execute
 /// @param fibers The Fibers to use to execute the functors
 /// @pre dgs.size() <= fibers.size()
 void
-parallel_do(const std::vector<boost::function<void ()> > &dgs,
+parallel_do(const std::vector<std::function<void ()> > &dgs,
             std::vector<Fiber::ptr> &fibers);
 
 namespace Detail {
@@ -119,11 +118,11 @@ parallel_foreach(Iterator begin, Iterator end, Functor functor,
         << parallelism << " fibers";
     int count = parallelism;
     for (int i = 0; i < parallelism; ++i) {
-        scheduler->schedule(boost::bind(
+        scheduler->schedule(std::bind(
             &Detail::parallel_foreach_impl<Iterator, Functor>,
-            boost::ref(begin), boost::ref(end), boost::ref(functor),
-            boost::ref(mutex), boost::ref(exception), scheduler,
-            Fiber::getThis(), boost::ref(count)));
+            std::ref(begin), std::ref(end), std::ref(functor),
+            std::ref(mutex), std::ref(exception), scheduler,
+            Fiber::getThis(), std::ref(count)));
     }
     Scheduler::yieldTo();
 

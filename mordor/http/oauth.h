@@ -2,8 +2,6 @@
 #define __MORDOR_HTTP_OAUTH_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/function.hpp>
-
 #include "broker.h"
 
 namespace Mordor {
@@ -61,7 +59,7 @@ class RequestBroker : public RequestBrokerFilter
 {
 public:
     RequestBroker(HTTP::RequestBroker::ptr parent,
-        boost::function<bool (const URI &,
+        std::function<bool (const URI &,
             std::shared_ptr<ClientRequest> /* priorRequest = ClientRequest::ptr() */,
             std::string & /* signatureMethod */,
             std::pair<std::string, std::string> & /* clientCredentials */,
@@ -74,10 +72,10 @@ public:
 
     std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
 
 private:
-    boost::function<bool (const URI &, std::shared_ptr<ClientRequest>, std::string &,
+    std::function<bool (const URI &, std::shared_ptr<ClientRequest>, std::string &,
         std::pair<std::string, std::string> &,
         std::pair<std::string, std::string> &,
         std::string &, size_t)> m_getCredentialsDg;

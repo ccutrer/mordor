@@ -83,9 +83,9 @@ getTemporaryCredentials(RequestBroker::ptr requestBroker, const URI &uri,
         requestHeaders.entity.contentLength = body.size();
     }
 
-    boost::function<void (ClientRequest::ptr)> bodyDg;
+    std::function<void (ClientRequest::ptr)> bodyDg;
     if (!body.empty())
-        bodyDg = boost::bind(&writeBody, _1, boost::cref(body));
+        bodyDg = std::bind(&writeBody, std::placeholders::_1, std::cref(body));
     ClientRequest::ptr request;
     try {
         request = requestBroker->request(requestHeaders, false, bodyDg);
@@ -139,9 +139,10 @@ getTokenCredentials(RequestBroker::ptr requestBroker, const URI &uri,
         requestHeaders.entity.contentLength = body.size();
     }
 
-    boost::function<void (ClientRequest::ptr)> bodyDg;
+    std::function<void (ClientRequest::ptr)> bodyDg;
     if (!body.empty())
-        bodyDg = boost::bind(&writeBody, _1, boost::cref(body));
+        bodyDg = std::bind(&writeBody, std::placeholders::_1,
+		std::cref(body));
     ClientRequest::ptr request;
     try {
         request = requestBroker->request(requestHeaders, false, bodyDg);
@@ -355,7 +356,7 @@ static void authorizeDg(ClientRequest::ptr request,
     const std::pair<std::string, std::string> &clientCredentials,
     const std::pair<std::string, std::string> &tokenCredentials,
     const std::string &realm, const std::string scheme,
-    boost::function<void (ClientRequest::ptr)> bodyDg)
+    std::function<void (ClientRequest::ptr)> bodyDg)
 {
     authorize(request->request(), signatureMethod, clientCredentials,
         tokenCredentials, realm, scheme);
@@ -367,20 +368,20 @@ static void authorizeDg(ClientRequest::ptr request,
 
 ClientRequest::ptr
 RequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-    boost::function<void (ClientRequest::ptr)> bodyDg)
+    std::function<void (ClientRequest::ptr)> bodyDg)
 {
     ClientRequest::ptr priorRequest;
     std::pair<std::string, std::string> clientCredentials, tokenCredentials;
     std::string signatureMethod, realm;
     size_t attempts = 0;
     while (true) {
-        boost::function<void (ClientRequest::ptr)> wrappedBodyDg = bodyDg;
+        std::function<void (ClientRequest::ptr)> wrappedBodyDg = bodyDg;
         if (m_getCredentialsDg(requestHeaders.requestLine.uri, priorRequest,
             signatureMethod, clientCredentials, tokenCredentials, realm,
             attempts++))
-            wrappedBodyDg = boost::bind(&authorizeDg, _1,
-                boost::cref(signatureMethod), boost::cref(clientCredentials),
-                boost::cref(tokenCredentials), boost::cref(realm),
+            wrappedBodyDg = std::bind(&authorizeDg, std::placeholders::_1,
+                std::cref(signatureMethod), std::cref(clientCredentials),
+                std::cref(tokenCredentials), std::cref(realm),
                 requestHeaders.requestLine.uri.scheme(),
                 bodyDg);
         else if (priorRequest)

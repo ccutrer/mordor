@@ -75,7 +75,7 @@ EventLoop::idle()
 {
     while (!stopping()) {
         MORDOR_LOG_DEBUG(g_log) << m_messageWindow << " Starting new message pump";
-        schedule(boost::bind(&EventLoop::messagePump, this));
+        schedule(std::bind(&EventLoop::messagePump, this));
         Fiber::yield();
     }
 }
@@ -117,7 +117,7 @@ EventLoop::wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_TIMER:
         {
             MORDOR_LOG_TRACE(g_log) << hWnd << " processing timers";
-            std::vector<boost::function<void ()> > expired = self->processTimers();
+            std::vector<std::function<void ()> > expired = self->processTimers();
             if (!expired.empty())
                 self->schedule(expired.begin(), expired.end());
 

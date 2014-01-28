@@ -27,7 +27,7 @@ MORDOR_UNITTEST(SSLStream, basic)
     SSLStream::ptr sslserver(new SSLStream(pipes.first, false));
     SSLStream::ptr sslclient(new SSLStream(pipes.second, true));
 
-    pool.schedule(boost::bind(&accept, sslserver));
+    pool.schedule(std::bind(&accept, sslserver));
     sslclient->connect();
     pool.dispatch();
 
@@ -68,18 +68,18 @@ MORDOR_UNITTEST(SSLStream, duplexStress)
     SSLStream::ptr sslserver(new SSLStream(pipes.first, false));
     SSLStream::ptr sslclient(new SSLStream(pipes.second, true));
 
-    pool.schedule(boost::bind(&accept, sslserver));
+    pool.schedule(std::bind(&accept, sslserver));
     sslclient->connect();
     pool.dispatch();
 
     // Transfer 1 MB
     long long toTransfer = 1024 * 1024;
-    std::vector<boost::function<void ()> > dgs;
+    std::vector<std::function<void ()> > dgs;
     bool complete1 = false, complete2 = false, complete3 = false, complete4 = false;
-    dgs.push_back(boost::bind(&writeLotsaData, sslserver, toTransfer, boost::ref(complete1)));
-    dgs.push_back(boost::bind(&readLotsaData, sslserver, toTransfer, boost::ref(complete2)));
-    dgs.push_back(boost::bind(&writeLotsaData, sslclient, toTransfer, boost::ref(complete3)));
-    dgs.push_back(boost::bind(&readLotsaData, sslclient, toTransfer, boost::ref(complete4)));
+    dgs.push_back(std::bind(&writeLotsaData, sslserver, toTransfer, std::ref(complete1)));
+    dgs.push_back(std::bind(&readLotsaData, sslserver, toTransfer, std::ref(complete2)));
+    dgs.push_back(std::bind(&writeLotsaData, sslclient, toTransfer, std::ref(complete3)));
+    dgs.push_back(std::bind(&readLotsaData, sslclient, toTransfer, std::ref(complete4)));
     parallel_do(dgs);
     MORDOR_ASSERT(complete1);
     MORDOR_ASSERT(complete2);
@@ -108,12 +108,12 @@ MORDOR_UNITTEST(SSLStream, forceDuplex)
     Stream::ptr server = sslserver, client = sslclient;
 
     int sequence = 0;
-    pool.schedule(boost::bind(&accept, sslserver));
+    pool.schedule(std::bind(&accept, sslserver));
     sslclient->connect();
     pool.dispatch();
 
-    pool.schedule(boost::bind(&readWorld, client,
-        boost::ref(sequence)));
+    pool.schedule(std::bind(&readWorld, client,
+        std::ref(sequence)));
     pool.dispatch();
     MORDOR_TEST_ASSERT_EQUAL(++sequence, 2);
     // Read is pending
@@ -142,13 +142,13 @@ MORDOR_UNITTEST(SSLStream, incomingDataAfterShutdown)
 
     Stream::ptr server = sslserver, client = sslclient;
 
-    pool.schedule(boost::bind(&accept, sslserver));
+    pool.schedule(std::bind(&accept, sslserver));
     sslclient->connect();
     pool.dispatch();
 
     MORDOR_TEST_ASSERT_EQUAL(sslclient->write("c", 1u), 1u);
     sslclient->flush(false);
-    pool.schedule(boost::bind(&expectUnexpectedEof, sslclient));
+    pool.schedule(std::bind(&expectUnexpectedEof, sslclient));
     sslserver->close();
 }
 
@@ -162,7 +162,7 @@ MORDOR_UNITTEST(SSLStream, acceptOverBuffering)
     SSLStream::ptr sslserver(new SSLStream(bufferedStream, false));
     SSLStream::ptr sslclient(new SSLStream(pipes.second, true));
 
-    pool.schedule(boost::bind(&accept, sslserver));
+    pool.schedule(std::bind(&accept, sslserver));
     sslclient->connect();
     pool.dispatch();
 }

@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/fiber.h"
 #include "mordor/scheduler.h"
 #include "mordor/test/test.h"
@@ -42,11 +40,11 @@ MORDOR_UNITTEST(FLS, basic)
     fls = 1;
     MORDOR_TEST_ASSERT_EQUAL(fls.get(), 1);
 
-    Fiber::ptr fiber(new Fiber(boost::bind(&basic, boost::ref(fls))));
+    Fiber::ptr fiber(new Fiber(std::bind(&basic, std::ref(fls))));
     fiber->call();
     MORDOR_TEST_ASSERT_EQUAL(fls.get(), 1);
 
-    Thread thread1(boost::bind(&thread, boost::ref(fls), fiber));
+    Thread thread1(std::bind(&thread, std::ref(fls), fiber));
     thread1.join();
     MORDOR_TEST_ASSERT_EQUAL(fls.get(), 1);
     fiber->call();

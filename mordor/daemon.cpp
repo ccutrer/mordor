@@ -22,7 +22,7 @@ boost::signals2::signal<void ()> onContinue;
         return os << #ctrl;         \
 
 #ifdef WINDOWS
-static boost::function<int (int, char **)> g_daemonMain;
+static std::function<int (int, char **)> g_daemonMain;
 
 namespace {
 struct ServiceStatus
@@ -206,7 +206,7 @@ static BOOL WINAPI HandlerRoutine(DWORD dwCtrlType)
 }
 
 int run(int argc, char **argv,
-    boost::function<int (int, char **)> daemonMain)
+    std::function<int (int, char **)> daemonMain)
 {
     SERVICE_TABLE_ENTRYW ServiceStartTable[] = {
         { L"", &ServiceMain },
@@ -376,7 +376,7 @@ static bool shouldDaemonizeDueToCmdLine(int argc, char **argv)
 #endif
 
 int run(int argc, char **argv,
-    boost::function<int (int, char **)> daemonMain)
+    std::function<int (int, char **)> daemonMain)
 {
 #ifndef OSX
     std::string pidfile;

@@ -531,7 +531,7 @@ Zip::getNextEntry()
             m_notifyStream.reset(new NotifyStream(
                 m_fileStream));
         m_notifyStream->parent(m_fileStream);
-        m_notifyStream->notifyOnEof = boost::bind(&Zip::onFileEOF, this);
+        m_notifyStream->notifyOnEof = std::bind(&Zip::onFileEOF, this);
         m_fileStream = m_notifyStream;
     }
     return m_currentFile;
@@ -549,7 +549,7 @@ Zip::onFileEOF()
 {
     MORDOR_ASSERT(m_currentFile);
     MORDOR_ASSERT(m_notifyStream);
-    m_notifyStream->notifyOnEof = NULL;
+    m_notifyStream->notifyOnEof = nullptr;
 
     unsigned char buffer[24];
     size_t expectedSize = 12;
@@ -676,7 +676,7 @@ ZipEntry::stream() const
                 m_outer->m_notifyStream.reset(new NotifyStream(
                     m_outer->m_fileStream));
             m_outer->m_notifyStream->parent(m_outer->m_fileStream);
-            m_outer->m_notifyStream->notifyOnEof = boost::bind(&Zip::onFileEOF,
+            m_outer->m_notifyStream->notifyOnEof = std::bind(&Zip::onFileEOF,
                 m_outer);
             m_outer->m_fileStream = m_outer->m_notifyStream;
         }

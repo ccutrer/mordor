@@ -1,7 +1,5 @@
 // Copyright (c) 2010 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/test/test.h"
 #include "mordor/thread.h"
 #include "mordor/workerpool.h"
@@ -18,7 +16,7 @@ static void threadFunc(tid_t &myTid)
 MORDOR_UNITTEST(Thread, correctTID)
 {
     tid_t tid = emptytid();
-    Thread t(boost::bind(&threadFunc, boost::ref(tid)), "my thread");
+    Thread t(std::bind(&threadFunc, std::ref(tid)), "my thread");
     t.join();
     MORDOR_TEST_ASSERT_NOT_EQUAL(tid, emptytid());
     MORDOR_TEST_ASSERT_EQUAL(tid, t.tid());

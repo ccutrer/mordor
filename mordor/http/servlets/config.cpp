@@ -111,8 +111,8 @@ void Config::request(ServerRequest::ptr request, Access access)
                 Stream::ptr response = request->responseStream();
                 response.reset(new BufferedStream(response));
                 response->write("<html><body><table>\n", 20);
-                Mordor::Config::visit(boost::bind(access == READWRITE ?
-                    &eachConfigVarHTMLWrite : &eachConfigVarHTML, _1,
+                Mordor::Config::visit(std::bind(access == READWRITE ?
+                    &eachConfigVarHTMLWrite : &eachConfigVarHTML, std::placeholders::_1,
                     response));
                 response->write("</table></body></html>", 22);
                 response->close();
@@ -121,7 +121,8 @@ void Config::request(ServerRequest::ptr request, Access access)
             case JSON:
             {
                 JSON::Object root;
-                Mordor::Config::visit(boost::bind(&eachConfigVarJSON, _1, boost::ref(root)));
+                Mordor::Config::visit(std::bind(&eachConfigVarJSON,
+					std::placeholders::_1, std::ref(root)));
                 std::ostringstream os;
                 os << root;
                 std::string str = os.str();

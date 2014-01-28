@@ -6,9 +6,9 @@
 #ifndef WINDOWS
 #include <sys/resource.h>
 #endif
+#include <functional>
 #include <iostream>
 
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -129,7 +129,7 @@ NetBench::run(NetBenchServer* server, NetBenchClient* client)
 
     if (m_runServer) {
         server->run(m_host, 1, m_numBytes,
-                    boost::bind(&NetBench::serverRunning, this));
+                    std::bind(&NetBench::serverRunning, this));
     } else {
         runClient();
     }
@@ -160,14 +160,14 @@ NetBench::runClient()
               << "avg_time_usec ops_per_sec bw_MB_per_sec\n";
 
     m_client->init(m_host, m_numBytes, 1,
-                   boost::bind(&NetBench::initRound, this));
+                   std::bind(&NetBench::initRound, this));
 }
 
 void
 NetBench::initRound()
 {
     m_client->prepClientsForNextRound(m_newConns, m_newActive, m_iters,
-                                      boost::bind(&NetBench::clientsReady,
+                                      std::bind(&NetBench::clientsReady,
                                                   this));
 }
 
@@ -175,7 +175,7 @@ void
 NetBench::clientsReady()
 {
     m_start = boost::posix_time::microsec_clock::universal_time();
-    m_client->startRound(boost::bind(&NetBench::roundDone, this, _1));
+    m_client->startRound(std::bind(&NetBench::roundDone, this, std::placeholders::_1));
 }
 
 void

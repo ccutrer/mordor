@@ -1,7 +1,5 @@
 // Copyright (c) 2011 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "mordor/http/broker.h"
 #include "mordor/http/server.h"
 #include "mordor/test/test.h"
@@ -26,7 +24,8 @@ public:
 #pragma warning(disable: 4355)
 #endif
     ReadAdviceFixture()
-        : server(boost::bind(&ReadAdviceFixture::dummyServer, this, _1, _2)),
+        : server(std::bind(&ReadAdviceFixture::dummyServer, this,
+		       std::placeholders::_1, std::placeholders::_2)),
           baseRequestBroker(ConnectionBroker::ptr(&server,
               &nop<ConnectionBroker *>)),
           requestBroker(&baseRequestBroker, &nop<RequestBroker *>),
@@ -255,7 +254,8 @@ public:
 #pragma warning(disable: 4355)
 #endif
     WriteAdviceFixture()
-        : server(boost::bind(&WriteAdviceFixture::dummyServer, this, _1, _2)),
+        : server(std::bind(&WriteAdviceFixture::dummyServer, this,
+		    std::placeholders::_1, std::placeholders::_2)),
           baseRequestBroker(ConnectionBroker::ptr(&server,
               &nop<ConnectionBroker *>)),
           requestBroker(&baseRequestBroker, &nop<RequestBroker *>),

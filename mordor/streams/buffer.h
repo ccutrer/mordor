@@ -1,11 +1,11 @@
 #ifndef __MORDOR_BUFFER_H__
 #define __MORDOR_BUFFER_H__
 
+#include <functional>
 #include <list>
 #include <vector>
 
 #include <boost/shared_array.hpp>
-#include <boost/function.hpp>
 
 #include "mordor/socket.h"
 
@@ -110,7 +110,7 @@ public:
         bool includeDelimiter = true);
     std::string getDelimited(const std::string &delimiter,
         bool eofIsDelimiter = true, bool includeDelimiter = true);
-    void visit(boost::function<void (const void *, size_t)> dg, size_t length = ~0) const;
+    void visit(std::function<void (const void *, size_t)> dg, size_t length = ~0) const;
 
     bool operator== (const Buffer &rhs) const;
     bool operator!= (const Buffer &rhs) const;

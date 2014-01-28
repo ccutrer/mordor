@@ -168,7 +168,7 @@ public:
 
     void readTimeout(unsigned long long us);
     void writeTimeout(unsigned long long us);
-    void idleTimeout(unsigned long long us, boost::function<void ()> dg);
+    void idleTimeout(unsigned long long us, std::function<void ()> dg);
 
 private:
     void scheduleNextRequest(ClientRequest *currentRequest);
@@ -182,7 +182,7 @@ private:
     unsigned long long m_readTimeout, m_idleTimeout;
     std::shared_ptr<Timer> m_idleTimer;
     TimerManager *m_timerManager;
-    boost::function<void ()> m_idleDg;
+    std::function<void ()> m_idleDg;
     std::list<ClientRequest *> m_pendingRequests;
     std::list<ClientRequest *>::iterator m_currentRequest;
     std::set<ClientRequest *> m_waitingResponses;

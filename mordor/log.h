@@ -2,13 +2,13 @@
 #define __MORDOR_LOG_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
 #include <list>
 #include <memory>
 #include <set>
 #include <sstream>
 
 #include "predef.h"
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
 
@@ -105,7 +105,7 @@ public:
     /// Call dg for each registered Logger.
     ///
     /// This may include implicitly created intermediate loggers.
-    static void visit(boost::function<void (std::shared_ptr<Logger>)> dg);
+    static void visit(std::function<void (std::shared_ptr<Logger>)> dg);
 
     /// Return the root of the Logger hierarchy
     static std::shared_ptr<Logger> root();

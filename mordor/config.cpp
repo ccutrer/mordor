@@ -164,7 +164,7 @@ Config::lookup(const std::string &name)
 }
 
 void
-Config::visit(boost::function<void (ConfigVarBase::ptr)> dg)
+Config::visit(std::function<void (ConfigVarBase::ptr)> dg)
 {
     for (ConfigVarSet::const_iterator it = vars().begin();
         it != vars().end();
@@ -336,7 +336,7 @@ Config::monitorRegistry(IOManager &ioManager, HKEY hKey,
     // Have to wait until after the object is constructed to get the weak_ptr
     // we need
     ioManager.registerEvent(result->m_hEvent,
-        boost::bind(&RegistryMonitor::onRegistryChange,
+        std::bind(&RegistryMonitor::onRegistryChange,
             std::weak_ptr<RegistryMonitor>(result)), true);
     Mordor::loadFromRegistry(result->m_hKey);
     return result;
@@ -355,7 +355,7 @@ static void updateTimer(const std::string &string, Timer *timer)
 }
 
 Timer::ptr associateTimerWithConfigVar(TimerManager &timerManager,
-    ConfigVar<std::string>::ptr configVar, boost::function<void ()> dg)
+    ConfigVar<std::string>::ptr configVar, std::function<void ()> dg)
 {
     unsigned long long initialValue = stringToMicroseconds(configVar->val());
     std::shared_ptr<Timer> result = timerManager.registerTimer(initialValue, dg, true);
@@ -382,8 +382,8 @@ void associateSchedulerWithConfigVar(Scheduler &scheduler,
     ConfigVar<int>::ptr configVar)
 {
     configVar->beforeChange.connect(&verifyThreadCount);
-    configVar->onChange.connect(boost::bind(&updateThreadCount, _1,
-        boost::ref(scheduler)));
+    configVar->onChange.connect(std::bind(&updateThreadCount,
+		std::placeholders::_1, std::ref(scheduler)));
     updateThreadCount(configVar->val(), scheduler);
 }
 

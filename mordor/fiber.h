@@ -2,10 +2,10 @@
 #define __MORDOR_FIBER_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
 #include <list>
 #include <memory>
 
-#include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "exception.h"
@@ -91,7 +91,7 @@ public:
     /// memory; physical/paging memory is not allocated until the actual pages
     /// are touched by the Fiber executing
     /// @post state() == INIT
-    Fiber(boost::function<void ()> dg, size_t stacksize = 0);
+    Fiber(std::function<void ()> dg, size_t stacksize = 0);
     ~Fiber();
 
     /// @brief Reset a Fiber to be used again
@@ -102,7 +102,7 @@ public:
     /// @param dg The new initial function
     /// @pre state() == INIT || state() == TERM || state() == EXCEPT
     /// @post state() == INIT
-    void reset(boost::function<void ()> dg);
+    void reset(std::function<void ()> dg);
 
     /// @return The currently executing Fiber
     static ptr getThis();
@@ -174,7 +174,7 @@ private:
     void switchContext(Fiber *toFiber);
 
 private:
-    boost::function<void ()> m_dg;
+    std::function<void ()> m_dg;
     void *m_stack, *m_sp;
     size_t m_stacksize;
 #ifdef UCONTEXT_FIBERS

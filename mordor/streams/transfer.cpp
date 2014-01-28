@@ -2,8 +2,6 @@
 
 #include "transfer.h"
 
-#include <boost/bind.hpp>
-
 #include "mordor/assert.h"
 #include "mordor/config.h"
 #include "mordor/fiber.h"
@@ -85,15 +83,15 @@ unsigned long long transferStream(Stream &src, Stream &dst,
         }
     }
 
-    std::vector<boost::function<void ()> > dgs;
+    std::vector<std::function<void ()> > dgs;
     std::vector<Fiber::ptr> fibers;
     dgs.resize(2);
     fibers.resize(2);
-    fibers[0].reset(new Fiber(NULL));
-    fibers[1].reset(new Fiber(NULL));
-    dgs[0] = boost::bind(&readOne, boost::ref(src), boost::ref(readBuffer),
-        boost::ref(todo), boost::ref(readResult));
-    dgs[1] = boost::bind(&writeOne, boost::ref(dst), boost::ref(writeBuffer));
+    fibers[0].reset(new Fiber(nullptr));
+    fibers[1].reset(new Fiber(nullptr));
+    dgs[0] = std::bind(&readOne, std::ref(src), std::ref(readBuffer),
+        std::ref(todo), std::ref(readResult));
+    dgs[1] = std::bind(&writeOne, std::ref(dst), std::ref(writeBuffer));
     while (totalRead < toTransfer) {
         writeBuffer = readBuffer;
         if (readBuffer == &buf1)

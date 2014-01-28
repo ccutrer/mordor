@@ -4,8 +4,6 @@
 
 #include "connectionpool.h"
 
-#include <boost/bind.hpp>
-
 #include "mordor/config.h"
 #include "mordor/iomanager.h"
 #include "mordor/log.h"
@@ -81,7 +79,7 @@ std::shared_ptr<Connection> ConnectionPool::getConnection() {
     //the share_ptr stored in m_free/m_busyConnections
     std::shared_ptr<Connection> ret(
         conn.get(),
-        boost::bind(&ConnectionPool::releaseConnection, this, _1));
+        std::bind(&ConnectionPool::releaseConnection, this, _1));
     m_busyConnections.push_back(conn);
     m_freeConnections.erase(m_freeConnections.begin());
     return ret;
@@ -119,7 +117,7 @@ void
 associateConnectionPoolWithConfigVar(ConnectionPool &pool,
     ConfigVar<size_t>::ptr configVar)
 {
-  configVar->onChange.connect(boost::bind(&ConnectionPool::resize, &pool, _1));
+  configVar->onChange.connect(std::bind(&ConnectionPool::resize, &pool, _1));
   pool.resize(configVar->val());
 }
 

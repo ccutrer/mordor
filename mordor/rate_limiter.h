@@ -114,7 +114,7 @@ private:
         if(!bucket.m_timestamps.empty()) {
             if (!bucket.m_timer) {
                 bucket.m_timer = m_timerManager.registerTimer(bucket.m_timestamps.front() + timeLimit - now,
-                    boost::bind(&RateLimiter::trimKey, this, key));
+                    std::bind(&RateLimiter::trimKey, this, key));
             }
         } else {
             m_buckets.erase(key);

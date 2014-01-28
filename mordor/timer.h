@@ -2,15 +2,13 @@
 #define __MORDOR_TIMER_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
 #include <memory>
 #include <set>
 #include <vector>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/weak_ptr.hpp>
 
 namespace Mordor {
 
@@ -23,7 +21,7 @@ public:
     typedef std::shared_ptr<Timer> ptr;
 
 private:
-    Timer(unsigned long long us, boost::function<void ()> dg,
+    Timer(unsigned long long us, std::function<void ()> dg,
         bool recurring, TimerManager *manager);
     // Constructor for dummy object
     Timer(unsigned long long next);
@@ -47,7 +45,7 @@ private:
     bool m_recurring;
     unsigned long long m_next;
     unsigned long long m_us;
-    boost::function<void ()> m_dg;
+    std::function<void ()> m_dg;
     TimerManager *m_manager;
 
 private:
@@ -66,7 +64,7 @@ public:
     virtual ~TimerManager();
 
     virtual Timer::ptr registerTimer(unsigned long long us,
-        boost::function<void ()> dg, bool recurring = false);
+        std::function<void ()> dg, bool recurring = false);
 
     /// Conditionally execute the dg callback function only when weakCond is
     /// still in valid status, which means, the original object managed by the
@@ -74,7 +72,7 @@ public:
     /// NOTE: this interface can't be called in class constructor while passing
     ///  a shared_ptr/weak_ptr of itself.
     Timer::ptr registerConditionTimer(unsigned long long us,
-        boost::function<void ()> dg,
+        std::function<void ()> dg,
         std::weak_ptr<void> weakCond,
         bool recurring = false);
 
@@ -93,17 +91,17 @@ public:
     /// @param dg replacement function whose value will be returned by now()
     /// omit the parameter to return to the default clock.
     /// NOTE: as now() is static, this affects *all* TimerManager instances
-    static void setClock(boost::function<unsigned long long()> dg = NULL);
+    static void setClock(std::function<unsigned long long()> dg = nullptr);
 
 protected:
     virtual void onTimerInsertedAtFront() {}
-    std::vector<boost::function<void ()> > processTimers();
+    std::vector<std::function<void ()> > processTimers();
 
 private:
     bool detectClockRollover(unsigned long long nowUs);
 
 private:
-    static boost::function<unsigned long long ()> ms_clockDg;
+    static std::function<unsigned long long ()> ms_clockDg;
     std::set<Timer::ptr, Timer::Comparator> m_timers;
     boost::mutex m_mutex;
     bool m_tickled;

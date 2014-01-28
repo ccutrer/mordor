@@ -2,10 +2,10 @@
 #define __MORDOR_MULTIPART_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
 #include <memory>
 #include <string>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 #include "http.h"
@@ -33,7 +33,7 @@ public:
     std::shared_ptr<BodyPart> nextPart();
     void finish();
 
-    boost::function<void ()> multipartFinished;
+    std::function<void ()> multipartFinished;
 
 private:
     void partDone();

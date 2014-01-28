@@ -79,8 +79,8 @@ Connection::hasMessageBody(const GeneralHeaders &general,
 Stream::ptr
 Connection::getStream(const GeneralHeaders &general,
     const EntityHeaders &entity, const std::string &method, Status status,
-    boost::function<void()> notifyOnEof,
-    boost::function<void()> notifyOnException, bool forRead)
+    std::function<void()> notifyOnEof,
+    std::function<void()> notifyOnException, bool forRead)
 {
     MORDOR_ASSERT(hasMessageBody(general, entity, method, status));
     Stream::ptr stream;

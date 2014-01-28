@@ -72,7 +72,7 @@ createRequestBroker(const RequestBrokerOptions &options)
 RequestBroker::ptr defaultRequestBroker(IOManager *ioManager,
                                         Scheduler *scheduler,
                                         ConnectionBroker::ptr *connBroker,
-                                        boost::function<bool (size_t)> delayDg)
+                                        std::function<bool (size_t)> delayDg)
 {
    RequestBrokerOptions options;
    options.ioManager = ioManager;
@@ -379,7 +379,7 @@ ConnectionCache::getConnectionViaProxy(const URI &uri, const URI &proxy,
             new ClientConnection(stream, m_timerManager)), proxied);
         MORDOR_LOG_TRACE(g_cacheLog) << this << " connection " << result.first
             << " to " << endpoint << " established";
-        stream->onRemoteClose().connect(boost::bind(&ConnectionCache::dropConnection,
+        stream->onRemoteClose().connect(std::bind(&ConnectionCache::dropConnection,
             this, endpoint, result.first.get()));
         if (m_httpReadTimeout != ~0ull)
             result.first->readTimeout(m_httpReadTimeout);
@@ -387,7 +387,7 @@ ConnectionCache::getConnectionViaProxy(const URI &uri, const URI &proxy,
             result.first->writeTimeout(m_httpWriteTimeout);
         if (m_idleTimeout != ~0ull)
             result.first->idleTimeout(m_idleTimeout,
-            boost::bind(&ConnectionCache::dropConnection, this, endpoint,
+            std::bind(&ConnectionCache::dropConnection, this, endpoint,
                 result.first.get()));
         // Assign this connection to the first blank connection for this
         // schemeAndAuthority
@@ -450,7 +450,7 @@ ConnectionCache::closeIdleConnections()
                 connStream->cancelRead();
                 connStream->cancelWrite();
                 if (m_idleTimeout != ~0ull)
-                    (*it2)->idleTimeout(~0ull, NULL);
+                    (*it2)->idleTimeout(~0ull, nullptr);
                 it2 = it->second->connections.erase(it2);
             } else {
                 ++it2;
@@ -483,7 +483,7 @@ ConnectionCache::abortConnections()
                 connStream->cancelRead();
                 connStream->cancelWrite();
                 if (m_idleTimeout != ~0ull)
-                    (*it2)->idleTimeout(~0ull, NULL);
+                    (*it2)->idleTimeout(~0ull, nullptr);
             }
         }
     }
@@ -502,7 +502,7 @@ ConnectionCache::cleanOutDeadConns(CachedConnectionMap &conns)
             it2 != it->second->connections.end();) {
             if (*it2 && !(*it2)->newRequestsAllowed()) {
                 if (m_idleTimeout != ~0ull)
-                    (*it2)->idleTimeout(~0ull, NULL);
+                    (*it2)->idleTimeout(~0ull, nullptr);
                 it2 = it->second->connections.erase(it2);
             } else {
                 ++it2;
@@ -582,7 +582,7 @@ ConnectionCache::dropConnection(const URI &uri,
         MORDOR_LOG_TRACE(g_cacheLog) << this << " dropping connection "
             << connection << " to " << uri;
         if (m_idleTimeout != ~0ull)
-            (*it2)->idleTimeout(~0ull, NULL);
+            (*it2)->idleTimeout(~0ull, nullptr);
         it->second->connections.erase(it2);
         if (it->second->connections.empty())
             m_conns.erase(it);
@@ -610,9 +610,9 @@ MockConnectionBroker::getConnection(const URI &uri, bool forceNewConnection)
             client->writeTimeout(m_writeTimeout);
         }
         ServerConnection::ptr server(
-            new ServerConnection(pipes.second, boost::bind(m_dg,
-                schemeAndAuthority, _1)));
-        Scheduler::getThis()->schedule(Fiber::ptr(new Fiber(boost::bind(
+            new ServerConnection(pipes.second, std::bind(m_dg,
+                schemeAndAuthority, std::placeholders::_1)));
+        Scheduler::getThis()->schedule(Fiber::ptr(new Fiber(std::bind(
             &ServerConnection::processRequests, server))));
         m_conns[schemeAndAuthority] = client;
         return std::make_pair(client, false);
@@ -629,7 +629,7 @@ RequestBrokerFilter::parent()
 }
 
 static void doBody(ClientRequest::ptr request,
-    boost::function<void (ClientRequest::ptr)> bodyDg,
+    std::function<void (ClientRequest::ptr)> bodyDg,
     Future<> &future,
     boost::exception_ptr &exception, bool &exceptionWasHttp)
 {
@@ -658,7 +658,7 @@ static void doBody(ClientRequest::ptr request,
 
 ClientRequest::ptr
 BaseRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-                           boost::function<void (ClientRequest::ptr)> bodyDg)
+                           std::function<void (ClientRequest::ptr)> bodyDg)
 {
     URI &currentUri = requestHeaders.requestLine.uri;
     URI originalUri = currentUri;
@@ -711,9 +711,9 @@ BaseRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
         boost::exception_ptr exception;
         bool exceptionWasHttp = false;
         if (bodyDg)
-            Scheduler::getThis()->schedule(boost::bind(&doBody,
-                request, bodyDg, boost::ref(future), boost::ref(exception),
-                boost::ref(exceptionWasHttp)));
+            Scheduler::getThis()->schedule(std::bind(&doBody,
+                request, bodyDg, std::ref(future), std::ref(exception),
+                std::ref(exceptionWasHttp)));
         currentUri = originalUri;
         try {
             // Force reading the response here to check for connectivity problems
@@ -752,7 +752,7 @@ BaseRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
 
 ClientRequest::ptr
 RetryRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-                           boost::function<void (ClientRequest::ptr)> bodyDg)
+                           std::function<void (ClientRequest::ptr)> bodyDg)
 {
     size_t localRetries = 0;
     size_t *retries = mp_retries ? mp_retries : &localRetries;
@@ -798,7 +798,7 @@ RetryRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
 
 ClientRequest::ptr
 RedirectRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-                               boost::function<void (ClientRequest::ptr)> bodyDg)
+                               std::function<void (ClientRequest::ptr)> bodyDg)
 {
     URI &currentUri = requestHeaders.requestLine.uri;
     URI originalUri = currentUri;
@@ -852,7 +852,7 @@ RedirectRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
 
 ClientRequest::ptr
 UserAgentRequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-                               boost::function<void (ClientRequest::ptr)> bodyDg)
+                               std::function<void (ClientRequest::ptr)> bodyDg)
 {
     requestHeaders.request.userAgent = m_userAgent;
     return parent()->request(requestHeaders, forceNewConnection, bodyDg);

@@ -65,7 +65,7 @@ ServletDispatcher::getServlet(ServletPathMap &vhost, URI::Path &path)
         if (servletPtr)
             result = *servletPtr;
         else
-            result.reset(boost::get<boost::function<Servlet *()> >(
+            result.reset(boost::get<std::function<Servlet *()> >(
                 it->second)());
         break;
     }

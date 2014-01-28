@@ -48,8 +48,8 @@ TimeoutStream::readTimeout(unsigned long long readTimeout)
         }
     } else if (m_readTimeout != ~0ull && !m_readTimedOut) {
         m_readTimer = m_timerManager.registerTimer(m_readTimeout,
-            boost::bind(&cancelReadLocal, parent(),
-            boost::ref(m_readTimedOut), boost::ref(m_permaReadTimedOut)));
+            std::bind(&cancelReadLocal, parent(),
+            std::ref(m_readTimedOut), std::ref(m_permaReadTimedOut)));
     }
 }
 
@@ -67,8 +67,8 @@ TimeoutStream::writeTimeout(unsigned long long writeTimeout)
         }
     } else if (m_writeTimeout != ~0ull && !m_writeTimedOut) {
         m_writeTimer = m_timerManager.registerTimer(m_writeTimeout,
-            boost::bind(&cancelWriteLocal, parent(),
-            boost::ref(m_writeTimedOut), boost::ref(m_permaWriteTimedOut)));
+            std::bind(&cancelWriteLocal, parent(),
+            std::ref(m_writeTimedOut), std::ref(m_permaWriteTimedOut)));
     }
 }
 
@@ -82,8 +82,8 @@ TimeoutStream::read(Buffer &buffer, size_t length)
     MORDOR_ASSERT(!m_readTimer);
     if (m_readTimeout != ~0ull)
         m_readTimer = m_timerManager.registerTimer(m_readTimeout,
-            boost::bind(&cancelReadLocal, parent(),
-            boost::ref(m_readTimedOut), boost::ref(m_permaReadTimedOut)));
+            std::bind(&cancelReadLocal, parent(),
+            std::ref(m_readTimedOut), std::ref(m_permaReadTimedOut)));
     lock.unlock();
     size_t result;
     try {
@@ -126,8 +126,8 @@ TimeoutStream::write(const Buffer &buffer, size_t length)
     MORDOR_ASSERT(!m_writeTimer);
     if (m_writeTimeout != ~0ull)
         m_writeTimer = m_timerManager.registerTimer(m_writeTimeout,
-            boost::bind(&cancelWriteLocal, parent(),
-            boost::ref(m_writeTimedOut), boost::ref(m_permaWriteTimedOut)));
+            std::bind(&cancelWriteLocal, parent(),
+            std::ref(m_writeTimedOut), std::ref(m_permaWriteTimedOut)));
     lock.unlock();
     size_t result;
     try {

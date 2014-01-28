@@ -20,7 +20,7 @@ namespace OAuth2 {
 
     static void authorizeDg(ClientRequest::ptr request,
         const std::string &token,
-        boost::function<void (ClientRequest::ptr)> bodyDg)
+        std::function<void (ClientRequest::ptr)> bodyDg)
     {
         authorize(request->request(), token);
         if (bodyDg)
@@ -31,15 +31,15 @@ namespace OAuth2 {
 
     ClientRequest::ptr
     RequestBroker::request(Request &requestHeaders, bool forceNewConnection,
-        boost::function<void (ClientRequest::ptr)> bodyDg)
+        std::function<void (ClientRequest::ptr)> bodyDg)
     {
         ClientRequest::ptr priorRequest;
         std::string token;
         size_t attempts = 0;
         while (true) {
-            boost::function<void (ClientRequest::ptr)> wrappedBodyDg = bodyDg;
+            std::function<void (ClientRequest::ptr)> wrappedBodyDg = bodyDg;
             if (m_getCredentialsDg(requestHeaders.requestLine.uri, priorRequest, token, attempts++))
-                wrappedBodyDg = boost::bind(&authorizeDg, _1, boost::cref(token), bodyDg);
+                wrappedBodyDg = std::bind(&authorizeDg, std::placeholders::_1, std::cref(token), bodyDg);
             else if (priorRequest)
                 return priorRequest;
             if (priorRequest)

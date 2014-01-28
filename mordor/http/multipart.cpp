@@ -2,8 +2,6 @@
 
 #include "multipart.h"
 
-#include <boost/bind.hpp>
-
 #include "mordor/assert.h"
 #include "mordor/streams/buffer.h"
 #include "mordor/streams/notify.h"
@@ -155,7 +153,7 @@ BodyPart::BodyPart(Multipart::ptr multipart)
             MORDOR_THROW_EXCEPTION(HTTP::IncompleteMessageHeaderException());
         m_stream.reset(new BodyPartStream(m_multipart->m_stream, m_multipart->m_boundary));
         NotifyStream *notify = new NotifyStream(m_stream);
-        notify->notifyOnEof = boost::bind(&Multipart::partDone, m_multipart);
+        notify->notifyOnEof = std::bind(&Multipart::partDone, m_multipart);
         m_stream.reset(notify);
     }
 }
@@ -179,7 +177,7 @@ BodyPart::stream()
         std::string headers = os.str();
         m_multipart->m_stream->write(headers.c_str(), headers.size());
         NotifyStream *notify = new NotifyStream(m_multipart->m_stream, false);
-        notify->notifyOnClose = boost::bind(&Multipart::partDone, m_multipart);
+        notify->notifyOnClose = std::bind(&Multipart::partDone, m_multipart);
         m_stream.reset(notify);
     }
     return m_stream;
@@ -198,7 +196,7 @@ BodyPart::multipart()
         std::string headers = os.str();
         m_multipart->m_stream->write(headers.c_str(), headers.size());
         NotifyStream *notify = new NotifyStream(m_multipart->m_stream, false);
-        notify->notifyOnClose = boost::bind(&Multipart::partDone, m_multipart);
+        notify->notifyOnClose = std::bind(&Multipart::partDone, m_multipart);
         m_stream.reset(notify);
     }
     HTTP::StringMap::const_iterator it = m_headers.contentType.parameters.find("boundary");

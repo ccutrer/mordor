@@ -2,6 +2,8 @@
 #define __HTTP_BROKER_H__
 // Copyright (c) 2009 - Mozy, Inc.
 
+#include <functional>
+
 #include <openssl/ssl.h>
 
 #include "http.h"
@@ -72,8 +74,7 @@ public:
         : m_cancelled(false),
           m_ioManager(ioManager),
           m_scheduler(scheduler),
-          m_connectTimeout(~0ull),
-          m_filterNetworkCallback(NULL)
+          m_connectTimeout(~0ull)
     {}
 
     void connectTimeout(unsigned long long timeout) { m_connectTimeout = timeout; }
@@ -82,7 +83,7 @@ public:
     std::shared_ptr<Stream> getStream(const URI &uri);
     void cancelPending();
 
-    void networkFilterCallback(boost::function<void (std::shared_ptr<Socket>)> fnCallback)
+    void networkFilterCallback(std::function<void (std::shared_ptr<Socket>)> fnCallback)
     {  m_filterNetworkCallback = fnCallback; }
 
 private:
@@ -93,7 +94,7 @@ private:
     Scheduler *m_scheduler;
     unsigned long long m_connectTimeout;
 
-    boost::function<void (std::shared_ptr<Socket>)> m_filterNetworkCallback;
+    std::function<void (std::shared_ptr<Socket>)> m_filterNetworkCallback;
 };
 
 class ConnectionBroker
@@ -162,7 +163,7 @@ public:
     // Proxy support requires this callback.  It is expected to return an
     // array of candidate Proxy servers to handle the requested URI.
     // If none are returned the request will be performed directly
-    void proxyForURI(boost::function<std::vector<URI> (const URI &)> proxyForURIDg)
+    void proxyForURI(std::function<std::vector<URI> (const URI &)> proxyForURIDg)
     { m_proxyForURIDg = proxyForURIDg; }
 
     // Required to support HTTPS proxies
@@ -224,7 +225,7 @@ private:
     unsigned long long m_httpReadTimeout, m_httpWriteTimeout, m_idleTimeout,
         m_sslReadTimeout, m_sslWriteTimeout;
     SSL_CTX *m_sslCtx;
-    boost::function<std::vector<URI> (const URI &)> m_proxyForURIDg;
+    std::function<std::vector<URI> (const URI &)> m_proxyForURIDg;
     std::shared_ptr<RequestBroker> m_proxyBroker;
 };
 
@@ -237,7 +238,7 @@ private:
     typedef std::map<URI, std::shared_ptr<ClientConnection> >
         ConnectionCache; // warning - not the same as class ConnectionCache
 public:
-    MockConnectionBroker(boost::function<void (const URI &uri,
+    MockConnectionBroker(std::function<void (const URI &uri,
             std::shared_ptr<ServerRequest>)> dg,
         TimerManager *timerManager = NULL, unsigned long long readTimeout = ~0ull,
         unsigned long long writeTimeout = ~0ull)
@@ -251,7 +252,7 @@ public:
         getConnection(const URI &uri, bool forceNewConnection = false);
 
 private:
-    boost::function<void (const URI &uri, std::shared_ptr<ServerRequest>)> m_dg;
+    std::function<void (const URI &uri, std::shared_ptr<ServerRequest>)> m_dg;
     ConnectionCache m_conns;
     TimerManager *m_timerManager;
     unsigned long long m_readTimeout, m_writeTimeout;
@@ -280,7 +281,7 @@ public:
     // the requestHeaders.request.host.
     virtual std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL)
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = nullptr)
         = 0;
 };
 
@@ -305,7 +306,7 @@ public:
 
     std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL)
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = nullptr)
         = 0;
 
 private:
@@ -341,7 +342,7 @@ public:
 
     std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = nullptr);
 
 private:
     ConnectionBroker::ptr m_connectionBroker;
@@ -356,7 +357,7 @@ public:
 
 public:
     RetryRequestBroker(RequestBroker::ptr parent,
-        boost::function<bool (size_t)> delayDg = NULL)
+        std::function<bool (size_t)> delayDg = nullptr)
         : RequestBrokerFilter(parent),
           m_delayDg(delayDg),
           mp_retries(NULL)
@@ -366,10 +367,10 @@ public:
 
     std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = nullptr);
 
 private:
-    boost::function<bool (size_t)> m_delayDg;
+    std::function<bool (size_t)> m_delayDg;
     size_t *mp_retries;
 };
 
@@ -406,7 +407,7 @@ public:
 
     std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = nullptr);
 
 private:
     size_t m_maxRedirects;
@@ -425,7 +426,7 @@ public:
 
     std::shared_ptr<ClientRequest> request(Request &requestHeaders,
         bool forceNewConnection = false,
-        boost::function<void (std::shared_ptr<ClientRequest>)> bodyDg = NULL);
+        std::function<void (std::shared_ptr<ClientRequest>)> bodyDg = nullptr);
 
 private:
     ProductAndCommentList m_userAgent;
@@ -442,7 +443,6 @@ struct RequestBrokerOptions
     RequestBrokerOptions() :
         ioManager(NULL),
         scheduler(NULL),
-        filterNetworksCB(NULL),
         handleRedirects(true),
         timerManager(NULL),
         connectTimeout(~0ull),
@@ -462,11 +462,11 @@ struct RequestBrokerOptions
     // When specified a RetryRequestBroker will be installed.  If a request fails
     // the callback will be called with the current retry count. If the callback
     // returns false then no further retries are attempted.
-    boost::function<bool (size_t /*retry count*/)> delayDg;
+    std::function<bool (size_t /*retry count*/)> delayDg;
 
     // Callback to call directly before a socket connection happens.
     // Implementation should throw an exception if it wants to prevent the connection
-    boost::function<void (std::shared_ptr<Socket>)> filterNetworksCB;
+    std::function<void (std::shared_ptr<Socket>)> filterNetworksCB;
 
     bool handleRedirects; // Whether to add a RedirectRequestBroker to the chain of RequestBrokers
     TimerManager *timerManager; // When not specified the iomanager will be used
@@ -480,7 +480,7 @@ struct RequestBrokerOptions
     unsigned long long idleTimeout;
 
     // Callback to find proxy for an URI, see ConnectionCache::proxyForURI
-    boost::function<std::vector<URI> (const URI &)> proxyForURIDg;
+    std::function<std::vector<URI> (const URI &)> proxyForURIDg;
 
     /// Required to enable https proxy support
     RequestBroker::ptr proxyRequestBroker;
@@ -488,7 +488,7 @@ struct RequestBrokerOptions
     // When specified these callbacks will be invoked to add authorization to the
     // request.  An alternative is to add the BasicAuth header before
     // calling RequestBroker::request (see HTTP::BasicAuth::authorize())
-    boost::function<bool (const URI &,
+    std::function<bool (const URI &,
             std::shared_ptr<ClientRequest> /* priorRequest = ClientRequest::ptr() */,
             std::string & /* scheme */, std::string & /* realm */,
             std::string & /* username */, std::string & /* password */,
@@ -521,7 +521,7 @@ std::pair<RequestBroker::ptr, ConnectionCache::ptr>
 RequestBroker::ptr defaultRequestBroker(IOManager *ioManager = NULL,
                                         Scheduler *scheduler = NULL,
                                         ConnectionBroker::ptr *connBroker = NULL,
-                                        boost::function<bool (size_t)> delayDg = NULL);
+                                        std::function<bool (size_t)> delayDg = nullptr);
 }}
 
 #endif

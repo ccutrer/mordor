@@ -1,7 +1,5 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
-#include <boost/bind.hpp>
-
 #include "sleep.h"
 
 #include "assert.h"
@@ -21,7 +19,7 @@ sleep(TimerManager &timerManager, unsigned long long us)
 {
     MORDOR_ASSERT(Scheduler::getThis());
     timerManager.registerTimer(us,
-        boost::bind(&scheduleMe, Scheduler::getThis(), Fiber::getThis()));
+        std::bind(&scheduleMe, Scheduler::getThis(), Fiber::getThis()));
     Scheduler::yieldTo();
 }
 

@@ -3,9 +3,8 @@
 // Copyright (c) 2009 - Mozy, Inc.
 
 #include <bitset>
+#include <functional>
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 #include "assert.h"
@@ -25,7 +24,7 @@ class Future : boost::noncopyable
     template <class Iterator>
     friend size_t waitAny(Iterator start, Iterator end);
 public:
-    Future(boost::function<void (const T &)> dg = NULL, Scheduler *scheduler = NULL)
+    Future(std::function<void (const T &)> dg = nullptr, Scheduler *scheduler = NULL)
         : m_fiber(0),
           m_scheduler(scheduler),
           m_dg(dg),
@@ -68,7 +67,7 @@ public:
         if (newValue == 0x2) {
             MORDOR_ASSERT(m_dg);
             if (m_scheduler)
-                m_scheduler->schedule(boost::bind(m_dg, boost::cref(m_t)));
+                m_scheduler->schedule(std::bind(m_dg, std::cref(m_t)));
             else
                 m_dg(m_t);
             return;
@@ -102,7 +101,7 @@ private:
     // Note that m_fiber will *not* point to a fiber if m_dg is valid
     intptr_t m_fiber;
     Scheduler *m_scheduler;
-    boost::function<void (const T &)> m_dg;
+    std::function<void (const T &)> m_dg;
     T m_t;
 };
 
@@ -114,7 +113,7 @@ class Future<Void> : boost::noncopyable
     template <class Iterator>
     friend size_t waitAny(Iterator start, Iterator end);
 public:
-    Future(boost::function<void ()> dg = NULL, Scheduler *scheduler = NULL)
+    Future(std::function<void ()> dg = nullptr, Scheduler *scheduler = NULL)
         : m_fiber(0),
           m_scheduler(scheduler),
           m_dg(dg)
@@ -219,7 +218,7 @@ private:
     // Note that m_fiber will *not* point to a fiber if m_dg is valid
     intptr_t m_fiber;
     Scheduler *m_scheduler;
-    boost::function<void ()> m_dg;
+    std::function<void ()> m_dg;
 };
 
 template <class Iterator>
