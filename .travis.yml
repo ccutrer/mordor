@@ -3,4 +3,7 @@ compiler:
   - clang
   - gcc
 script: autoreconf -i && ./configure && make check && mordor/tests/run_tests
-install: sudo apt-get install libboost-all-dev
+before_install:
+  - sudo add-apt-repository ppa:apokluda/boost1.53 -y
+  - sudo apt-get update
+install: sudo apt-get install libboost1.53-dev libboost-program-options1.53-dev libboost-regex1.53-dev libboost-system1.53-dev libboost-thread1.53-dev
