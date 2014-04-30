@@ -41,6 +41,7 @@ namespace {
 enum Family
 {
     UNSPECIFIED = AF_UNSPEC,
+    UNIX = AF_UNIX,
     IP4 = AF_INET,
     IP6 = AF_INET6
 };
@@ -62,6 +63,8 @@ std::ostream &operator <<(std::ostream &os, Family family)
     {
         case UNSPECIFIED:
             return os << "AF_UNSPEC";
+        case UNIX:
+            return os << "AF_UNIX";
         case IP4:
             return os << "AF_INET";
         case IP6:
