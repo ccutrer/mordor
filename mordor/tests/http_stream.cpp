@@ -105,6 +105,21 @@ private:
             MORDOR_TEST_ASSERT_EQUAL(range,
                 RangeSet(1u, std::make_pair(1024 * 1024 - 2048,
                     1024 * 1024 + 2048 - 1)));
+        } else if (requestUri == "/optimizedForwardSeek") {
+            MORDOR_TEST_ASSERT_EQUAL(++sequence, 1);
+            MORDOR_TEST_ASSERT_EQUAL(range.size(), 1u);
+            MORDOR_TEST_ASSERT_EQUAL(range,
+                RangeSet(1u, std::make_pair(0, 4096-1)));
+        } else if (requestUri == "/noExcessiveStreamingToDevNull") {
+            MORDOR_TEST_ASSERT_LESS_THAN_OR_EQUAL(++sequence, 2);
+            MORDOR_TEST_ASSERT_EQUAL(range.size(), 1u);
+            if (sequence == 1) {
+                MORDOR_TEST_ASSERT_EQUAL(range,
+                    RangeSet(1u, std::make_pair(0, 4096-1)));
+            } else {
+                MORDOR_TEST_ASSERT_EQUAL(range,
+                    RangeSet(1u, std::make_pair(10000, 10000+4096-1)));
+            }
         } else {
             MORDOR_NOTREACHED();
         }
@@ -244,6 +259,28 @@ MORDOR_UNITTEST_FIXTURE(ReadAdviceFixture, HTTPStream, adviceStillGetsEOFStraddl
     MORDOR_TEST_ASSERT_EQUAL(stream.read(buffer, 4096), 2048u);
     MORDOR_TEST_ASSERT_EQUAL(stream.read(buffer, 4096), 0u);
     MORDOR_TEST_ASSERT_EQUAL(sequence, 1);
+}
+
+MORDOR_UNITTEST_FIXTURE(ReadAdviceFixture, HTTPStream, optimizedForwardSeek)
+{
+    HTTPStream stream("http://localhost/optimizedForwardSeek", requestBroker);
+    stream.adviseRead(4096);
+    Buffer buffer;
+    stream.read(buffer, 100);
+    stream.seek(2000);
+    stream.read(buffer, 100);
+    MORDOR_TEST_ASSERT_EQUAL(sequence, 1);
+}
+
+MORDOR_UNITTEST_FIXTURE(ReadAdviceFixture, HTTPStream, noExcessiveStreamingToDevNull)
+{
+    HTTPStream stream("http://localhost/noExcessiveStreamingToDevNull", requestBroker);
+    stream.adviseRead(4096);
+    Buffer buffer;
+    stream.read(buffer, 100);
+    stream.seek(10000);
+    stream.read(buffer, 100);
+    MORDOR_TEST_ASSERT_EQUAL(sequence, 2);
 }
 
 namespace {
