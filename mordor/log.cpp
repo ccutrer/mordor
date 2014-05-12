@@ -25,6 +25,7 @@ namespace Mordor {
 
 static void enableLoggers();
 static void enableStdoutLogging();
+static void enableStderrLogging();
 static void enableFileLogging();
 #ifdef WINDOWS
 static void enableDebugLogging();
@@ -47,6 +48,8 @@ static ConfigVar<std::string>::ptr g_logTrace =
 
 static ConfigVar<bool>::ptr g_logStdout =
     Config::lookup("log.stdout", false, "Log to stdout");
+static ConfigVar<bool>::ptr g_logStderr =
+    Config::lookup("log.stderr", false, "Log to stderr");
 static ConfigVar<std::string>::ptr g_logFile =
     Config::lookup("log.file", std::string(), "Log to file");
 #ifdef WINDOWS
@@ -78,6 +81,7 @@ static struct LogInitializer
 
         g_logFile->monitor(&enableFileLogging);
         g_logStdout->monitor(&enableStdoutLogging);
+        g_logStderr->monitor(&enableStderrLogging);
 #ifdef WINDOWS
         g_logDebugWindow->monitor(&enableDebugLogging);
 #else
@@ -150,6 +154,19 @@ static void enableStdoutLogging()
     }
 }
 
+static void enableStderrLogging()
+{
+    static LogSink::ptr stderrSink;
+    bool log = g_logStderr->val();
+    if (stderrSink.get() && !log) {
+        Log::root()->removeSink(stderrSink);
+        stderrSink.reset();
+    } else if (!stderrSink.get() && log) {
+        stderrSink.reset(new StderrLogSink());
+        Log::root()->addSink(stderrSink);
+    }
+}
+
 #ifdef WINDOWS
 static void enableDebugLogging()
 {
@@ -205,8 +222,13 @@ static void enableFileLogging()
     }
 }
 
+OstreamLogSink::OstreamLogSink(std::ostream &os) :
+    m_os(os)
+{
+}
+
 void
-StdoutLogSink::log(const std::string &logger,
+OstreamLogSink::log(const std::string &logger,
         boost::posix_time::ptime now, unsigned long long elapsed,
         tid_t thread, void *fiber,
         Log::Level level, const std::string &str,
@@ -216,8 +238,18 @@ StdoutLogSink::log(const std::string &logger,
     os << now << " " << elapsed << " " << level << " " << thread << " "
         << fiber << " " << logger << " " << file << ":" << line << " "
         << str << std::endl;
-    std::cout << os.str();
-    std::cout.flush();
+    m_os << os.str();
+    m_os.flush();
+}
+
+StdoutLogSink::StdoutLogSink() :
+    OstreamLogSink(std::cout)
+{
+}
+
+StderrLogSink::StderrLogSink() :
+    OstreamLogSink(std::cerr)
+{
 }
 
 #ifdef WINDOWS
