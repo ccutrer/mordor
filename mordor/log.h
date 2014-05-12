@@ -140,15 +140,32 @@ public:
         const char *file, int line) = 0;
 };
 
-/// A LogSink that dumps message to stdout (std::cout)
-class StdoutLogSink : public LogSink
+/// A LogSink that dumps message to std::ostream&
+class OstreamLogSink : public LogSink
 {
 public:
-    void log(const std::string &logger,
+   OstreamLogSink(std::ostream &os);
+   void log(const std::string &logger,
         boost::posix_time::ptime now, unsigned long long elapsed,
         tid_t thread, void *fiber,
         Log::Level level, const std::string &str,
         const char *file, int line);
+protected:
+   std::ostream& m_os;
+};
+
+/// A LogSink that dumps message to stdout (std::cout)
+class StdoutLogSink : public OstreamLogSink
+{
+public:
+    StdoutLogSink();
+};
+
+/// A LogSink that dumps message to stderr (std::cerr)
+class StderrLogSink : public OstreamLogSink
+{
+public:
+    StderrLogSink();
 };
 
 #ifdef WINDOWS

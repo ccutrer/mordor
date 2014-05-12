@@ -396,7 +396,7 @@ HTTPStream::seek(long long offset, Anchor anchor)
     // Attempt to do an optimized forward seek
     if (offset > m_pos && m_readRequested != ~0ull && parent() &&
         parent()->supportsRead() &&
-        m_pos + m_readRequested < (unsigned long long)offset) {
+        m_pos + m_readRequested >= (unsigned long long)offset) {
         try {
             transferStream(*this, NullStream::get(), offset - m_pos);
             MORDOR_ASSERT(m_pos == offset);
