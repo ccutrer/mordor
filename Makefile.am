@@ -372,10 +372,6 @@ noinst_PROGRAMS=			\
 	mordor/examples/tunnel		\
 	mordor/examples/udpstats
 
-if BOOST_PROGRAM_OPTIONS
-noinst_PROGRAMS += mordor/examples/wget
-endif
-
 mordor_examples_cat_SOURCES=mordor/examples/cat.cpp
 mordor_examples_cat_LDADD=mordor/libmordor.la	\
 	$(CORESERVICES_FRAMEWORK_LIBS)		\
@@ -424,13 +420,6 @@ mordor_examples_tunnel_LDADD=mordor/libmordor.la	\
 
 mordor_examples_udpstats_SOURCES=mordor/examples/udpstats.cpp
 mordor_examples_udpstats_LDADD=mordor/libmordor.la	\
-	$(CORESERVICES_FRAMEWORK_LIBS)		\
-	$(COREFOUNDATION_FRAMEWORK_LIBS)	\
-	$(SECURITY_FRAMEWORK_LIBS)		\
-	$(SYSTEMCONFIGURATION_FRAMEWORK_LIBS)
-
-mordor_examples_wget_SOURCES=mordor/examples/wget.cpp
-mordor_examples_wget_LDADD=mordor/libmordor.la $(BOOST_PROGRAM_OPTIONS_LIB)	\
 	$(CORESERVICES_FRAMEWORK_LIBS)		\
 	$(COREFOUNDATION_FRAMEWORK_LIBS)	\
 	$(SECURITY_FRAMEWORK_LIBS)		\
